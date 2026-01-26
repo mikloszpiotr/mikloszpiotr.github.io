@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piotr Miklosz - Data Science & AI Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #ffffff;
+        }
+
+        /* Navigation */
+        nav {
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        nav .logo {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1a3a52;
+            text-decoration: none;
+        }
+
+        nav .nav-links {
+            display: none;
+        }
+
+        nav a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: color 0.3s ease;
+            padding: 18px 0;
+        }
+
+        nav a:hover {
+            color: #0066cc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f2942 0%, #1a4d7a 50%, #2c5282 100%);
+            color: white;
+            padding: 120px 40px;
+            text-align: center;
+            border-bottom: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 102, 204, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 180, 216, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero .container {
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.2em;
+            margin-bottom: 30px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .title {
+            font-size: 1.5em;
+            color: #7fd3ff;
+            margin-bottom: 30px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .hero p {
+            font-size: 1.15em;
+            color: #d4e6f5;
+            margin-bottom: 0;
+            line-height: 1.9;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+            border: 2px solid #0066cc;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+            border-color: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #1a3a52;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        main {
+            padding: 80px 0;
+        }
+
+        .section {
+            margin-bottom: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 50px;
+            gap: 15px;
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #1a3a52;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e8eef7;
+            border-radius: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0066cc, #00b4d8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover {
+            border-color: #0066cc;
+            box-shadow: 0 8px 24px rgba(0, 102, 204, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .category {
+            display: inline-block;
+            background: #f0f4f9;
+            color: #0066cc;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .project-card h3 {
+            font-size: 1.3em;
+            color: #1a3a52;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .project-card p {
+            color: #546e7a;
+            font-size: 0.97em;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .project-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            color: #0052a3;
+            gap: 12px;
+        }
+
+        .arrow {
+            display: inline-block;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e8eef7, transparent);
+            margin: 80px 0;
+        }
+
+        /* Footer */
+        footer {
+            background: #1a3a52;
+            color: white;
+            padding: 50px 40px;
+            margin-top: 80px;
+        }
+
+        footer .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .footer-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .footer-content p {
+            color: #a8d8ff;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: #a8d8ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            grid-column: 1 / -1;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+            color: #7a9cc6;
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav .container {
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.85em;
+                padding: 14px 0;
+            }
+
+            .hero {
+                padding: 60px 20px;
+            }
+
+            .hero h1 {
+                font-size: 2em;
+            }
+
+            .hero .title {
+                font-size: 1.1em;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 50px 0;
+            }
+
+            .section {
+                margin-bottom: 60px;
+            }
+
+            footer .container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav .nav-links {
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 1.6em;
+            }
+
+            .hero .title {
+                font-size: 1em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+
+            .project-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container" style="max-width: 1200px;">
+            <a href="#home" class="logo">Piotr miklosz</a>
+            <div class="nav-links">
+                <a href="https://linkedin.com/in/piotr-miklosz" target="_blank">LinkedIn</a>
+                <a href="https://github.com/mikloszpiotr" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero" id="home">
+        <div class="container">
+            <h1>Data Science & AI Solutions</h1>
+            <p class="title">Machine Learning Engineer | Supply Chain Analyst | Data Architect</p>
+            <p>Building intelligent systems that drive business value through advanced analytics, machine learning, and AI automation. Specializing in supply chain optimization and predictive modeling.</p>
+
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Machine Learning Section -->
+            <section class="section">
+                <div class="section-header">
+                    <span class="section-icon">🧠</span>
+                    <h2>Machine Learning & AI</h2>
+                </div>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <span class="project-icon">📂</span>
+                        <span class="category">Portfolio</span>
+                        <h3>ML Projects Portfolio</h3>
+                        <p>Curated collection of machine learning projects showcasing predictive modeling, classification, and advanced data analysis techniques.</p>
+                        <a href="https://mikloszpiotr.github.io/ml-projects-portfolio.github.io" target="_blank" class="project-link">Explore <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">📊</span>
+                        <span class="category">Analysis</span>
+                        <h3>Supply Chain ML</h3>
+                        <p>Python-based machine learning analysis for supply chain optimization, demand forecasting, and operational insights.</p>
+                        <a href="https://github.com/mikloszpiotr/Supply-Chain-Analysis-Python" target="_blank" class="project-link">View Code <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🚀</span>
+                        <span class="category">Application</span>
+                        <h3>Streamlit ML Apps</h3>
+                        <p>Interactive machine learning applications enabling real-time data exploration, predictions, and model demonstrations.</p>
+                        <a href="https://share.streamlit.io/user/mikloszpiotr" target="_blank" class="project-link">Launch <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🧮</span>
+                        <span class="category">Deep Learning</span>
+                        <h3>Lead Time Prediction NN</h3>
+                        <p>Neural network-based deep learning model for predicting supplier lead times with high accuracy in supply chain management.</p>
+                        <a href="https://github.com/mikloszpiotr/supplier_lead_time_prediction_nn" target="_blank" class="project-link">View Project <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🏆</span>
+                        <span class="category">Competition</span>
+                        <h3>Kaggle Competitions</h3>
+                        <p>Active participation in Kaggle competitions with strong performance in predictive modeling challenges and data science tournaments.</p>
+                        <a href="https://www.kaggle.com/piotrek40941/competitions" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🤖</span>
+                        <span class="category">AI Agent</span>
+                        <h3>Supply Chain AI Assistant</h3>
+                        <p>GPT-powered intelligent assistant specialized in supply chain analysis, optimization recommendations, and decision support.</p>
+                        <a href="https://chatgpt.com/g/g-67e032a1ae44819195dd8d5902f8671f-supply-chain-analyst-automator" target="_blank" class="project-link">Try Now <span class="arrow">→</span></a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- SQL & Database Section -->
+            <section class="section">
+                <div class="section-header">
+                    <span class="section-icon">📋</span>
+                    <h2>SQL & Data Engineering</h2>
+                </div>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <span class="project-icon">📂</span>
+                        <span class="category">Portfolio</span>
+                        <h3>SQL Projects Portfolio</h3>
+                        <p>Comprehensive collection of SQL projects demonstrating database design, complex queries, optimization, and enterprise data architecture.</p>
+                        <a href="https://mikloszpiotr.github.io/sql-projects-portfolio.github.io" target="_blank" class="project-link">Explore <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">📦</span>
+                        <span class="category">Database</span>
+                        <h3>Supply Chain SQL</h3>
+                        <p>SQL-based data engineering projects for supply chain management, inventory optimization, and warehouse analytics.</p>
+                        <a href="https://github.com/mikloszpiotr/supply-chain-sql-projects" target="_blank" class="project-link">View Repository <span class="arrow">→</span></a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- Data Visualization Section -->
+            <section class="section">
+                <div class="section-header">
+                    <span class="section-icon">📈</span>
+                    <h2>Data Visualization & BI</h2>
+                </div>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <span class="project-icon">📊</span>
+                        <span class="category">Tableau</span>
+                        <h3>Tableau Dashboards</h3>
+                        <p>Interactive, production-grade Tableau dashboards for business intelligence, KPI tracking, and executive reporting.</p>
+                        <a href="https://public.tableau.com/app/profile/piotr.mik.osz/vizzes" target="_blank" class="project-link">View Dashboards <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">📉</span>
+                        <span class="category">Power BI</span>
+                        <h3>Transportation Cost Analysis</h3>
+                        <p>Power BI dashboard providing comprehensive transportation cost analytics and logistics optimization insights.</p>
+                        <a href="https://github.com/mikloszpiotr/transportation-cost-analysis/tree/main" target="_blank" class="project-link">View Project <span class="arrow">→</span></a>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-divider"></div>
+
+            <!-- AI Automation Section -->
+            <section class="section">
+                <div class="section-header">
+                    <span class="section-icon">⚙️</span>
+                    <h2>AI Automation & Workflows</h2>
+                </div>
+                <div class="projects-grid">
+                    <div class="project-card">
+                        <span class="project-icon">🔄</span>
+                        <span class="category">Workflow</span>
+                        <h3>AI Supply Chain Copilot</h3>
+                        <p>n8n-based agentic workflow automating supply chain analysis, decision-making, and operational intelligence gathering.</p>
+                        <a href="https://github.com/mikloszpiotr/ai-agentic-supply-chain-copilot/tree/main" target="_blank" class="project-link">View Workflow <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🎯</span>
+                        <span class="category">Agent</span>
+                        <h3>Demand Forecast Agent</h3>
+                        <p>OpenAI-powered AI agent for demand forecasting accuracy analysis, anomaly detection, and predictive improvements.</p>
+                        <a href="https://github.com/mikloszpiotr/demand_forecast_accuracy_agent/tree/main" target="_blank" class="project-link">View Agent <span class="arrow">→</span></a>
+                    </div>
+
+                    <div class="project-card">
+                        <span class="project-icon">🏅</span>
+                        <span class="category">Certification</span>
+                        <h3>Alteryx Expertise</h3>
+                        <p>Certified Alteryx specialist with proven expertise in data preparation, workflow automation, and analytics platform optimization.</p>
+                        <a href="https://community.alteryx.com/t5/user/viewprofilepage/user-id/776142" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>Expertise</h3>
+                <p>Machine Learning • Deep Learning • SQL & Databases • Data Visualization • Business Intelligence • Supply Chain Analytics • AI Automation • Python • Tableau • Power BI</p>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Piotr Miklosz. Professional portfolio showcasing data science and AI expertise.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
