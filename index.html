@@ -3,649 +3,715 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Piotr Miklosz - Data Science & AI Portfolio</title>
+    <title>Piotr Miklosz — Supply Chain Analytics Leader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --ink: #0d1b2a;
+            --ink-mid: #2c3e50;
+            --ink-light: #546e7a;
+            --rule: #dce4ed;
+            --bg: #f8f6f2;
+            --white: #ffffff;
+            --accent: #1a4d7a;
+            --accent-bright: #0066cc;
+            --gold: #b8965a;
+            --gold-light: #d4af72;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
             line-height: 1.6;
-            color: #2c3e50;
-            background: #ffffff;
+            overflow-x: hidden;
         }
 
-        /* Navigation */
+        /* NAV */
         nav {
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            position: sticky;
+            position: fixed;
             top: 0;
-            z-index: 100;
+            width: 100%;
+            z-index: 200;
+            background: rgba(248, 246, 242, 0.97);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--rule);
         }
 
-        nav .container {
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 48px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 40px;
+            height: 64px;
         }
 
-        nav .logo {
-            font-size: 1.4em;
-            font-weight: 700;
-            color: #1a3a52;
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--ink);
             text-decoration: none;
+            letter-spacing: 0.02em;
         }
 
-        nav .nav-links {
-            display: none;
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
         }
 
-        nav a {
-            color: #2c3e50;
+        .nav-links a {
+            color: var(--ink-light);
             text-decoration: none;
+            font-size: 0.82em;
             font-weight: 500;
-            font-size: 0.95em;
-            transition: color 0.3s ease;
-            padding: 18px 0;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
         }
 
-        nav a:hover {
-            color: #0066cc;
-        }
+        .nav-links a:hover { color: var(--accent); }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
-
-        /* Hero Section */
+        /* HERO */
         .hero {
-            background: linear-gradient(135deg, #0f2942 0%, #1a4d7a 50%, #2c5282 100%);
-            color: white;
-            padding: 120px 40px;
-            text-align: center;
-            border-bottom: none;
+            min-height: 100vh;
+            background: var(--ink);
+            display: flex;
+            align-items: center;
             position: relative;
             overflow: hidden;
+            padding: 120px 48px 100px;
         }
 
-        .hero::before {
-            content: '';
+        .hero-texture {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(0, 102, 204, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(0, 180, 216, 0.1) 0%, transparent 50%);
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 72% 38%, rgba(26, 77, 122, 0.38) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 70% at 8% 85%, rgba(184, 150, 90, 0.07) 0%, transparent 55%);
             pointer-events: none;
         }
 
-        .hero .container {
-            max-width: 900px;
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 72px 72px;
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
             position: relative;
             z-index: 1;
         }
 
-        .hero h1 {
-            font-size: 3.2em;
-            margin-bottom: 30px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            line-height: 1.2;
-            background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero .title {
-            font-size: 1.5em;
-            color: #7fd3ff;
-            margin-bottom: 30px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .hero p {
-            font-size: 1.15em;
-            color: #d4e6f5;
-            margin-bottom: 0;
-            line-height: 1.9;
-            max-width: 720px;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: 300;
-            letter-spacing: 0.3px;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            font-size: 1em;
-            font-weight: 600;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: inline-block;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: #0066cc;
-            color: white;
-            border: 2px solid #0066cc;
-        }
-
-        .btn-primary:hover {
-            background: #0052a3;
-            border-color: #0052a3;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 102, 204, 0.3);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 2px solid white;
-        }
-
-        .btn-secondary:hover {
-            background: white;
-            color: #1a3a52;
-            transform: translateY(-2px);
-        }
-
-        /* Main Content */
-        main {
-            padding: 80px 0;
-        }
-
-        .section {
-            margin-bottom: 100px;
-        }
-
-        .section-header {
+        .hero-eyebrow {
             display: flex;
             align-items: center;
-            margin-bottom: 50px;
-            gap: 15px;
+            gap: 14px;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.15s ease forwards;
         }
 
-        .section-icon {
-            font-size: 2.5em;
+        .eyebrow-line { width: 36px; height: 1px; background: var(--gold); }
+
+        .eyebrow-text {
+            font-size: 0.76em;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-light);
         }
 
-        h2 {
-            font-size: 2.2em;
-            color: #1a3a52;
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.6em, 5.5vw, 5em);
             font-weight: 700;
-            margin: 0;
+            color: #ffffff;
+            line-height: 1.1;
+            margin-bottom: 18px;
+            max-width: 840px;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.3s ease forwards;
         }
 
-        /* Projects Grid */
-        .projects-grid {
+        .hero h1 em {
+            font-style: italic;
+            color: var(--gold-light);
+        }
+
+        .hero-rule {
+            width: 56px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            margin: 32px 0;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.48s ease forwards;
+        }
+
+        .hero-desc {
+            font-size: 1.02em;
+            font-weight: 300;
+            color: rgba(255,255,255,0.6);
+            max-width: 580px;
+            line-height: 1.9;
+            margin-bottom: 48px;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.58s ease forwards;
+            letter-spacing: 0.01em;
+        }
+
+        .hero-pillars {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 56px;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.72s ease forwards;
+        }
+
+        .pillar {
+            padding: 7px 18px;
+            border: 1px solid rgba(184, 150, 90, 0.3);
+            color: rgba(255,255,255,0.65);
+            font-size: 0.8em;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .pillar:hover { border-color: var(--gold-light); color: var(--gold-light); }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.86s ease forwards;
+        }
+
+        .btn-gold {
+            background: var(--gold);
+            color: var(--ink);
+            padding: 13px 34px;
+            font-size: 0.82em;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .btn-gold:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(184,150,90,0.3);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: rgba(255,255,255,0.75);
+            padding: 13px 34px;
+            font-size: 0.82em;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 2px;
+            border: 1px solid rgba(255,255,255,0.22);
+            transition: all 0.3s;
+        }
+
+        .btn-ghost:hover { border-color: rgba(255,255,255,0.65); color: #fff; }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeIn 1s 1.3s ease forwards;
+        }
+
+        .hero-scroll span {
+            font-size: 0.7em;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.28);
+        }
+
+        .scroll-bar {
+            width: 1px;
+            height: 38px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.28), transparent);
+            animation: pulse 2.2s infinite;
+        }
+
+        /* MAIN */
+        main { padding: 112px 0 80px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+        /* DOMAIN BLOCKS */
+        .domain {
+            border-top: 1px solid var(--rule);
+            padding-top: 80px;
+            margin-bottom: 96px;
+        }
+
+        .domain-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .domain-label-line { width: 30px; height: 1px; background: var(--gold); }
+
+        .domain-label-text {
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .domain-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 52px;
+            line-height: 1.2;
+        }
+
+        /* CARDS */
+        .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 28px;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
         }
 
-        .project-card {
-            background: white;
-            border: 1px solid #e8eef7;
-            border-radius: 10px;
-            padding: 30px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        .card {
+            background: var(--white);
+            padding: 38px 34px;
             position: relative;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
             overflow: hidden;
         }
 
-        .project-card::before {
+        .card::after {
             content: '';
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #0066cc, #00b4d8);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--accent-bright));
+            transition: width 0.45s ease;
         }
 
-        .project-card:hover {
-            border-color: #0066cc;
-            box-shadow: 0 8px 24px rgba(0, 102, 204, 0.12);
-            transform: translateY(-4px);
+        .card:hover {
+            background: #fdfcfa;
+            transform: translateY(-3px);
+            z-index: 2;
+            box-shadow: 0 20px 48px rgba(13,27,42,0.1);
         }
 
-        .project-card:hover::before {
-            opacity: 1;
-        }
+        .card:hover::after { width: 100%; }
 
-        .project-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .category {
+        .card-tag {
             display: inline-block;
-            background: #f0f4f9;
-            color: #0066cc;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.85em;
+            font-size: 0.7em;
             font-weight: 600;
-            margin-bottom: 15px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 16px;
         }
 
-        .project-card h3 {
-            font-size: 1.3em;
-            color: #1a3a52;
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.22em;
+            font-weight: 600;
+            color: var(--ink);
             margin-bottom: 12px;
-            font-weight: 600;
+            line-height: 1.3;
         }
 
-        .project-card p {
-            color: #546e7a;
-            font-size: 0.97em;
-            line-height: 1.7;
-            margin-bottom: 20px;
+        .card p {
+            font-size: 0.89em;
+            color: var(--ink-light);
+            line-height: 1.78;
+            margin-bottom: 26px;
         }
 
-        .project-link {
-            color: #0066cc;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95em;
+        .card-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .project-link:hover {
-            color: #0052a3;
-            gap: 12px;
-        }
-
-        .arrow {
-            display: inline-block;
-        }
-
-        /* Section Divider */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #e8eef7, transparent);
-            margin: 80px 0;
-        }
-
-        /* Footer */
-        footer {
-            background: #1a3a52;
-            color: white;
-            padding: 50px 40px;
-            margin-top: 80px;
-        }
-
-        footer .container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 40px;
-            align-items: center;
-        }
-
-        .footer-content h3 {
-            font-size: 1.1em;
-            margin-bottom: 15px;
+            font-size: 0.78em;
             font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.25s;
         }
 
-        .footer-content p {
-            color: #a8d8ff;
-            font-size: 0.95em;
-            line-height: 1.8;
+        .card-link:hover { color: var(--gold); gap: 14px; }
+
+        /* FOOTER */
+        footer {
+            background: var(--ink);
+            padding: 72px 48px 52px;
+            margin-top: 48px;
         }
 
-        .footer-links {
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 48px;
+            align-items: start;
+        }
+
+        .footer-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .footer-role {
+            font-size: 0.82em;
+            color: var(--gold-light);
+            letter-spacing: 0.08em;
+            margin-bottom: 22px;
+        }
+
+        .footer-skills {
+            font-size: 0.82em;
+            color: rgba(255,255,255,0.42);
+            line-height: 1.95;
+            max-width: 540px;
+        }
+
+        .footer-nav {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
+            align-items: flex-end;
         }
 
-        .footer-links a {
-            color: #a8d8ff;
+        .footer-nav a {
+            color: rgba(255,255,255,0.45);
             text-decoration: none;
+            font-size: 0.8em;
             font-weight: 500;
-            transition: color 0.3s ease;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
         }
 
-        .footer-links a:hover {
-            color: white;
-        }
+        .footer-nav a:hover { color: var(--gold-light); }
 
         .footer-bottom {
             grid-column: 1 / -1;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 30px;
-            text-align: center;
-            color: #7a9cc6;
-            font-size: 0.9em;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin-top: 36px;
+            padding-top: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.76em;
+            color: rgba(255,255,255,0.28);
         }
 
-        /* Responsive */
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.25; }
+            50%       { opacity: 0.75; }
+        }
+
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            nav .container {
-                padding: 0 20px;
-            }
-
-            nav a {
-                font-size: 0.85em;
-                padding: 14px 0;
-            }
-
-            .hero {
-                padding: 60px 20px;
-            }
-
-            .hero h1 {
-                font-size: 2em;
-            }
-
-            .hero .title {
-                font-size: 1.1em;
-            }
-
-            .container {
-                padding: 0 20px;
-            }
-
-            h2 {
-                font-size: 1.8em;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            main {
-                padding: 50px 0;
-            }
-
-            .section {
-                margin-bottom: 60px;
-            }
-
-            footer .container {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            nav .nav-links {
-                gap: 15px;
-            }
-
-            .hero h1 {
-                font-size: 1.6em;
-            }
-
-            .hero .title {
-                font-size: 1em;
-            }
-
-            h2 {
-                font-size: 1.5em;
-            }
-
-            .project-card {
-                padding: 20px;
-            }
+            .nav-inner { padding: 0 24px; }
+            .nav-links { display: none; }
+            .hero { padding: 100px 24px 90px; }
+            .container { padding: 0 24px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .footer-inner { grid-template-columns: 1fr; }
+            .footer-nav { align-items: flex-start; }
+            .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
+    <!-- NAV -->
     <nav>
-        <div class="container" style="max-width: 1200px;">
-            <a href="#home" class="logo">Piotr Miklosz</a>
+        <div class="nav-inner">
+            <a href="#home" class="nav-logo">Piotr Miklosz</a>
             <div class="nav-links">
                 <a href="https://linkedin.com/in/piotr-Miklosz" target="_blank">LinkedIn</a>
                 <a href="https://github.com/Mikloszpiotr" target="_blank">GitHub</a>
+                <a href="https://mikloszpiotr.github.io" target="_blank">Portfolio</a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero" id="home">
-        <div class="container">
-            <h1>Data Science & AI Solutions</h1>
-            <p class="title">Supply Chain Analytics Leader | AI & ML Strategy | Driving Operational Excellence</p>
-            <p>Translating advanced analytics, ML, and AI into measurable supply chain performance — reducing costs, improving forecast accuracy, and enabling faster, smarter decisions at scale.</p>
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-texture"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-inner">
+
+            <div class="hero-eyebrow">
+                <span class="eyebrow-line"></span>
+                <span class="eyebrow-text">Supply Chain Analytics &amp; Solutions Leader</span>
+            </div>
+
+            <h1>Turning Complex<br><em>Data Problems</em><br>into Business Decisions</h1>
+
+            <div class="hero-rule"></div>
+
+            <p class="hero-desc">
+                8+ years leading analytics strategy across automotive, electronics, and FMCG — translating advanced ML, AI, and data engineering into measurable operational performance and executive-level insight.
+            </p>
+
+            <div class="hero-pillars">
+                <span class="pillar">Demand Planning</span>
+                <span class="pillar">AI &amp; ML Strategy</span>
+                <span class="pillar">Supply Chain Optimization</span>
+                <span class="pillar">Cross-Functional Leadership</span>
+                <span class="pillar">Operational Excellence</span>
+            </div>
+
+            <div class="hero-cta">
+                <a href="https://linkedin.com/in/piotr-Miklosz" target="_blank" class="btn-gold">Connect on LinkedIn</a>
+                <a href="https://github.com/Mikloszpiotr" target="_blank" class="btn-ghost">View GitHub</a>
+            </div>
 
         </div>
-    </div>
+        <div class="hero-scroll">
+            <div class="scroll-bar"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
 
-    <!-- Main Content -->
+    <!-- MAIN -->
     <main>
         <div class="container">
-            <!-- Machine Learning Section -->
-            <section class="section">
-                <div class="section-header">
-                    <span class="section-icon">🧠</span>
-                    <h2>Machine Learning & AI</h2>
+
+            <!-- ML & AI -->
+            <div class="domain">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Strategic Domain</span>
                 </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <span class="project-icon">📂</span>
-                        <span class="category">Portfolio</span>
+                <h2 class="domain-title">Machine Learning &amp; AI</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">Portfolio</span>
                         <h3>ML Projects Portfolio</h3>
-                        <p>Curated collection of machine learning projects showcasing predictive modeling, classification, and advanced data analysis techniques.</p>
-                        <a href="https://Mikloszpiotr.github.io/ml-projects-portfolio.github.io" target="_blank" class="project-link">Explore <span class="arrow">→</span></a>
+                        <p>A curated collection of machine learning projects spanning predictive modeling, classification, and advanced data analysis — built for real supply chain contexts.</p>
+                        <a href="https://Mikloszpiotr.github.io/ml-projects-portfolio.github.io" target="_blank" class="card-link">Explore →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">📊</span>
-                        <span class="category">Analysis</span>
+                    <div class="card">
+                        <span class="card-tag">Analysis</span>
                         <h3>Supply Chain ML</h3>
-                        <p>Python-based machine learning analysis for supply chain optimization, demand forecasting, and operational insights.</p>
-                        <a href="https://github.com/Mikloszpiotr/Supply-Chain-Analysis-Python" target="_blank" class="project-link">View Code <span class="arrow">→</span></a>
+                        <p>Python-based machine learning applied to supply chain optimization, demand forecasting, and operational insight generation at scale.</p>
+                        <a href="https://github.com/Mikloszpiotr/Supply-Chain-Analysis-Python" target="_blank" class="card-link">View Code →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🚀</span>
-                        <span class="category">Application</span>
+                    <div class="card">
+                        <span class="card-tag">Application</span>
                         <h3>Streamlit ML Apps</h3>
-                        <p>Interactive machine learning applications enabling real-time data exploration, predictions, and model demonstrations.</p>
-                        <a href="https://share.streamlit.io/user/Mikloszpiotr" target="_blank" class="project-link">Launch <span class="arrow">→</span></a>
+                        <p>Interactive, production-ready ML applications enabling real-time data exploration, live predictions, and stakeholder-facing model demonstrations.</p>
+                        <a href="https://share.streamlit.io/user/Mikloszpiotr" target="_blank" class="card-link">Launch →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🧮</span>
-                        <span class="category">Deep Learning</span>
-                        <h3>Lead Time Prediction NN</h3>
-                        <p>Neural network-based deep learning model for predicting supplier lead times with high accuracy in supply chain management.</p>
-                        <a href="https://github.com/Mikloszpiotr/supplier_lead_time_prediction_nn" target="_blank" class="project-link">View Project <span class="arrow">→</span></a>
+                    <div class="card">
+                        <span class="card-tag">Deep Learning</span>
+                        <h3>Lead Time Prediction — Neural Network</h3>
+                        <p>Neural network model predicting supplier lead times with high accuracy, directly reducing supply chain uncertainty and safety stock requirements.</p>
+                        <a href="https://github.com/Mikloszpiotr/supplier_lead_time_prediction_nn" target="_blank" class="card-link">View Project →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🏆</span>
-                        <span class="category">Competition</span>
+                    <div class="card">
+                        <span class="card-tag">Competition</span>
                         <h3>Kaggle Competitions</h3>
-                        <p>Active participation in Kaggle competitions with strong performance in predictive modeling challenges and data science tournaments.</p>
-                        <a href="https://www.kaggle.com/piotrek40941/competitions" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                        <p>Active competition track record in predictive modeling challenges, benchmarking analytical approaches against global data science practitioners.</p>
+                        <a href="https://www.kaggle.com/piotrek40941/competitions" target="_blank" class="card-link">View Profile →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🤖</span>
-                        <span class="category">AI Agent</span>
+                    <div class="card">
+                        <span class="card-tag">AI Agent</span>
                         <h3>Supply Chain AI Assistant</h3>
-                        <p>GPT-powered intelligent assistant specialized in supply chain analysis, optimization recommendations, and decision support.</p>
-                        <a href="https://chatgpt.com/g/g-67e032a1ae44819195dd8d5902f8671f-supply-chain-analyst-automator" target="_blank" class="project-link">Try Now <span class="arrow">→</span></a>
+                        <p>GPT-powered intelligent assistant specialized in supply chain analysis, delivering optimization recommendations and decision support on demand.</p>
+                        <a href="https://chatgpt.com/g/g-67e032a1ae44819195dd8d5902f8671f-supply-chain-analyst-automator" target="_blank" class="card-link">Try Now →</a>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <div class="section-divider"></div>
-
-            <!-- SQL & Database Section -->
-            <section class="section">
-                <div class="section-header">
-                    <span class="section-icon">📋</span>
-                    <h2>SQL & Data Engineering</h2>
+            <!-- SQL -->
+            <div class="domain">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Strategic Domain</span>
                 </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <span class="project-icon">📂</span>
-                        <span class="category">Portfolio</span>
+                <h2 class="domain-title">SQL &amp; Data Engineering</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">Portfolio</span>
                         <h3>SQL Projects Portfolio</h3>
-                        <p>Comprehensive collection of SQL projects demonstrating database design, complex queries, optimization, and enterprise data architecture.</p>
-                        <a href="https://Mikloszpiotr.github.io/sql-projects-portfolio.github.io" target="_blank" class="project-link">Explore <span class="arrow">→</span></a>
+                        <p>Comprehensive SQL work spanning database design, complex query architecture, performance optimization, and enterprise-scale data pipelines.</p>
+                        <a href="https://Mikloszpiotr.github.io/sql-projects-portfolio.github.io" target="_blank" class="card-link">Explore →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">📦</span>
-                        <span class="category">Database</span>
+                    <div class="card">
+                        <span class="card-tag">Database</span>
                         <h3>Supply Chain SQL</h3>
-                        <p>SQL-based data engineering projects for supply chain management, inventory optimization, and warehouse analytics.</p>
-                        <a href="https://github.com/Mikloszpiotr/supply-chain-sql-projects" target="_blank" class="project-link">View Repository <span class="arrow">→</span></a>
+                        <p>SQL-based data engineering for supply chain management — covering inventory optimization, warehouse analytics, and operational reporting infrastructure.</p>
+                        <a href="https://github.com/Mikloszpiotr/supply-chain-sql-projects" target="_blank" class="card-link">View Repository →</a>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <div class="section-divider"></div>
-
-            <!-- Data Visualization Section -->
-            <section class="section">
-                <div class="section-header">
-                    <span class="section-icon">📈</span>
-                    <h2>Data Visualization & BI</h2>
+            <!-- BI -->
+            <div class="domain">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Strategic Domain</span>
                 </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <span class="project-icon">📊</span>
-                        <span class="category">Tableau</span>
-                        <h3>Tableau Dashboards</h3>
-                        <p>Interactive, production-grade Tableau dashboards for business intelligence, KPI tracking, and executive reporting.</p>
-                        <a href="https://public.tableau.com/app/profile/piotr.mik.osz/vizzes" target="_blank" class="project-link">View Dashboards <span class="arrow">→</span></a>
+                <h2 class="domain-title">Data Visualization &amp; Business Intelligence</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">Tableau</span>
+                        <h3>Executive Dashboards</h3>
+                        <p>Production-grade Tableau dashboards built for business intelligence, KPI tracking, and executive reporting — designed for clarity and decision velocity.</p>
+                        <a href="https://public.tableau.com/app/profile/piotr.mik.osz/vizzes" target="_blank" class="card-link">View Dashboards →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">📉</span>
-                        <span class="category">Power BI</span>
+                    <div class="card">
+                        <span class="card-tag">Power BI</span>
                         <h3>Transportation Cost Analysis</h3>
-                        <p>Power BI dashboard providing comprehensive transportation cost analytics and logistics optimization insights.</p>
-                        <a href="https://github.com/Mikloszpiotr/transportation-cost-analysis/tree/main" target="_blank" class="project-link">View Project <span class="arrow">→</span></a>
+                        <p>Power BI dashboard delivering comprehensive transportation cost analytics and logistics optimization insights to drive cost reduction decisions.</p>
+                        <a href="https://github.com/Mikloszpiotr/transportation-cost-analysis/tree/main" target="_blank" class="card-link">View Project →</a>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <div class="section-divider"></div>
-            <div class="section-divider"></div>
-
-<!-- Supply Chain Optimization Section -->
-<section class="section">
-    <div class="section-header">
-        <span class="section-icon">🔗</span>
-        <h2>Supply Chain Optimization</h2>
-    </div>
-    <div class="projects-grid">
-        <div class="project-card">
-            <span class="project-icon">⚡</span>
-            <span class="category">Optimization</span>
-            <h3>Supply Chain Optimization Hub</h3>
-            <p>Comprehensive collection of supply chain optimization projects covering network design, inventory management, routing algorithms, and end-to-end operational efficiency improvements.</p>
-            <a href="https://mikloszpiotr.github.io/optimization.github.io/" target="_blank" class="project-link">Explore <span class="arrow">→</span></a>
-        </div>
-    </div>
-</section>
-
-            <!-- AI Automation Section -->
-            <section class="section">
-                <div class="section-header">
-                    <span class="section-icon">⚙️</span>
-                    <h2>AI Automation & Workflows</h2>
+            <!-- Optimization -->
+            <div class="domain">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Strategic Domain</span>
                 </div>
-                <div class="projects-grid">
-                    <div class="project-card">
-                        <span class="project-icon">🔄</span>
-                        <span class="category">Workflow</span>
+                <h2 class="domain-title">Supply Chain Optimization</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">Optimization</span>
+                        <h3>Supply Chain Optimization Hub</h3>
+                        <p>An integrated collection of optimization initiatives covering network design, inventory management, routing algorithms, and end-to-end operational efficiency improvements across complex supply chains.</p>
+                        <a href="https://mikloszpiotr.github.io/optimization.github.io/" target="_blank" class="card-link">Explore →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Automation -->
+            <div class="domain">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Strategic Domain</span>
+                </div>
+                <h2 class="domain-title">AI Automation &amp; Intelligent Workflows</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">Workflow</span>
                         <h3>AI Supply Chain Copilot</h3>
-                        <p>n8n-based agentic workflow automating supply chain analysis, decision-making, and operational intelligence gathering.</p>
-                        <a href="https://github.com/Mikloszpiotr/ai-agentic-supply-chain-copilot/tree/main" target="_blank" class="project-link">View Workflow <span class="arrow">→</span></a>
+                        <p>n8n-based agentic workflow automating supply chain analysis, decision-making, and operational intelligence gathering — reducing manual effort at scale.</p>
+                        <a href="https://github.com/Mikloszpiotr/ai-agentic-supply-chain-copilot/tree/main" target="_blank" class="card-link">View Workflow →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🎯</span>
-                        <span class="category">Agent</span>
+                    <div class="card">
+                        <span class="card-tag">AI Agent</span>
                         <h3>Demand Forecast Accuracy Agent</h3>
-                        <p>OpenAI-powered AI agent for demand forecasting accuracy analysis, anomaly detection, and predictive improvements.</p>
-                        <a href="https://github.com/Mikloszpiotr/demand_forecast_accuracy_agent/tree/main" target="_blank" class="project-link">View Agent <span class="arrow">→</span></a>
+                        <p>OpenAI-powered agent for demand forecasting accuracy analysis, anomaly detection, and predictive accuracy improvements across complex SKU portfolios.</p>
+                        <a href="https://github.com/Mikloszpiotr/demand_forecast_accuracy_agent/tree/main" target="_blank" class="card-link">View Agent →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🏅</span>
-                        <span class="category">Certification</span>
-                        <h3>Alteryx Expertise</h3>
-                        <p>Certified Alteryx specialist with proven expertise in data preparation, workflow automation, and analytics platform optimization.</p>
-                        <a href="https://community.alteryx.com/t5/user/viewprofilepage/user-id/776142" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                    <div class="card">
+                        <span class="card-tag">Multi-Agent</span>
+                        <h3>Demand Forecast Multi-Agent AI</h3>
+                        <p>LangGraph multi-agent system automating the full demand forecasting workflow — from data ingestion to executive-ready commentary — in under 5 minutes per SKU.</p>
+                        <a href="https://github.com/mikloszpiotr/demand-forecast-multi-agent?tab=readme-ov-file" target="_blank" class="card-link">View Project →</a>
                     </div>
-
-                    <div class="project-card">
-                        <span class="project-icon">🔄</span>
-                        <span class="category">Workflow</span>
-                        <h3>Orange Data Mining</h3>
-                        <p>End-to-end machine learning classification project built in Orange Data Mining to predict delivery delays in a supply chain context.</p>
-                        <a href="https://github.com/mikloszpiotr/orange-ml-delivery-delay-prediction/tree/main" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                    <div class="card">
+                        <span class="card-tag">ML Workflow</span>
+                        <h3>Delivery Delay Prediction</h3>
+                        <p>End-to-end ML classification project built in Orange Data Mining to predict delivery delays — translating operational risk into proactive supply chain decisions.</p>
+                        <a href="https://github.com/mikloszpiotr/orange-ml-delivery-delay-prediction/tree/main" target="_blank" class="card-link">View Project →</a>
                     </div>
-                        <div class="project-card">
-                        <span class="project-icon">🎯</span>
-                        <span class="category">Agent</span>
-                        <h3>Demand Forecast Multi Agent AI</h3>
-                        <p>Multi-agent LangGraph system that automates the full supply chain demand forecasting workflow — from data ingestion to executive-ready commentary — in under 5 minutes per SKU.</p>
-                        <a href="https://github.com/mikloszpiotr/demand-forecast-multi-agent?tab=readme-ov-file" target="_blank" class="project-link">View Profile <span class="arrow">→</span></a>
+                    <div class="card">
+                        <span class="card-tag">Certification</span>
+                        <h3>Alteryx — Certified Specialist</h3>
+                        <p>Certified expertise in data preparation, workflow automation, and analytics platform optimization, enabling enterprise-scale processing and repeatable analytical pipelines.</p>
+                        <a href="https://community.alteryx.com/t5/user/viewprofilepage/user-id/776142" target="_blank" class="card-link">View Certification →</a>
                     </div>
                 </div>
-            </section>
+            </div>
+
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- FOOTER -->
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <h3>Expertise</h3>
-                <p>Machine Learning • Deep Learning • SQL & Databases • Data Visualization • Business Intelligence • Supply Chain Analytics • AI Automation • Python • Tableau • Power BI</p>
+        <div class="footer-inner">
+            <div>
+                <div class="footer-name">Piotr Miklosz</div>
+                <div class="footer-role">Supply Chain Analytics &amp; Solutions Leader</div>
+                <p class="footer-skills">
+                    Machine Learning &nbsp;·&nbsp; Deep Learning &nbsp;·&nbsp; SQL &amp; Data Engineering &nbsp;·&nbsp; Business Intelligence &nbsp;·&nbsp; Supply Chain Analytics &nbsp;·&nbsp; AI Automation &nbsp;·&nbsp; Demand Planning &nbsp;·&nbsp; Operational Excellence
+                </p>
             </div>
-
+            <div class="footer-nav">
+                <a href="https://github.com/Mikloszpiotr" target="_blank">GitHub</a>
+                <a href="https://mikloszpiotr.github.io" target="_blank">Portfolio</a>
+            </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 Piotr Miklosz. Professional portfolio showcasing data science and AI expertise.</p>
+                <span>&copy; 2026 Piotr Miklosz. All rights reserved.</span>
+                <span>Warsaw, Poland</span>
             </div>
         </div>
     </footer>
+
 </body>
 </html>
