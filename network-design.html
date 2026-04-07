@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Chain Network Design — Piotr Miklosz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2235; --border: #1e2d45;
+    --accent: #00d4ff; --accent2: #7c3aed; --accent3: #10b981;
+    --warn: #f59e0b; --danger: #ef4444;
+    --text: #e2e8f0; --text2: #94a3b8; --text3: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.6; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header { padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .header-left { flex: 1; min-width: 280px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); text-decoration: none; margin-bottom: 12px; letter-spacing: 0.05em; transition: color 0.2s; }
+  .back-link:hover { color: var(--accent); }
+  .case-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: var(--accent); background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2); padding: 3px 10px; border-radius: 2px; margin-bottom: 10px; }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(22px, 4vw, 34px); font-weight: 800; line-height: 1.15; color: var(--text); letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .header-desc { font-size: 13px; color: var(--text2); margin-top: 8px; max-width: 500px; }
+  .ml-badge { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent2); background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); padding: 4px 10px; border-radius: 2px; letter-spacing: 0.08em; }
+  .ml-dot { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .kpi-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .kpi.blue::before { background: var(--accent); } .kpi.purple::before { background: var(--accent2); }
+  .kpi.green::before { background: var(--accent3); } .kpi.amber::before { background: var(--warn); }
+  .kpi.red::before { background: var(--danger); }
+  .kpi-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 6px; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+  .kpi-delta { font-size: 11px; margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .kpi-delta.up { color: var(--accent3); } .kpi-delta.down { color: var(--danger); } .kpi-delta.warn { color: var(--warn); }
+
+  .main-grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; align-items: start; }
+  @media(max-width:900px) { .main-grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .panel-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); }
+  .panel-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; }
+  .panel-body { padding: 18px; }
+
+  .control-group { margin-bottom: 18px; }
+  .control-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .control-val { font-size: 12px; color: var(--accent); font-weight: 500; }
+  input[type=range] { width: 100%; height: 3px; appearance: none; background: var(--border); border-radius: 2px; outline: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; }
+  select { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; outline: none; }
+  select:focus { border-color: var(--accent); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  .run-btn { width: 100%; padding: 11px; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; cursor: pointer; transition: opacity 0.2s, transform 0.1s; text-transform: uppercase; margin-bottom: 8px; }
+  .run-btn:hover { opacity: 0.88; }
+  .run-btn:active { transform: scale(0.98); }
+  .disrupt-btn { width: 100%; padding: 11px; background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 4px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s; text-transform: uppercase; }
+  .disrupt-btn:hover { background: rgba(239,68,68,0.08); }
+  .disrupt-btn.active { background: rgba(239,68,68,0.15); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 12px 16px; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.2s, border-color 0.2s; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; padding: 16px; }
+  .tab-content.active { display: block; }
+
+  /* Network canvas */
+  #networkCanvas { width: 100%; height: 420px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); display: block; cursor: crosshair; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-line { width: 20px; height: 2px; flex-shrink: 0; }
+
+  /* Node list */
+  .node-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; }
+  .node-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--surface2); border-radius: 5px; border: 1px solid var(--border); font-size: 12px; }
+  .node-row.disrupted { border-color: var(--danger); background: rgba(239,68,68,0.05); }
+  .node-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .node-name { flex: 1; color: var(--text); font-weight: 500; }
+  .node-meta { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 10px; }
+  .node-btn { padding: 3px 8px; font-size: 10px; border: 1px solid var(--border); background: transparent; color: var(--text3); border-radius: 3px; cursor: pointer; font-family: 'DM Mono', monospace; transition: border-color 0.2s, color 0.2s; }
+  .node-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .node-btn.disrupted { border-color: var(--danger); color: var(--danger); background: rgba(239,68,68,0.08); }
+
+  /* ML box */
+  .ml-box { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.2); border-radius: 6px; padding: 14px 16px; margin-top: 14px; }
+  .ml-box-title { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent2); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .ml-box-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .ml-box code { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 2px; }
+
+  /* Cost table */
+  .cost-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cost-table th { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+  .cost-table td { padding: 8px 10px; border-bottom: 1px solid rgba(30,45,69,0.4); color: var(--text2); }
+  .cost-table td:first-child { color: var(--text); font-weight: 500; }
+  .cost-table tr:last-child td { border-bottom: none; }
+  .cost-table .good { color: var(--accent3); font-family: 'DM Mono', monospace; }
+  .cost-table .bad  { color: var(--danger);  font-family: 'DM Mono', monospace; }
+  .cost-table .warn { color: var(--warn);    font-family: 'DM Mono', monospace; }
+
+  /* Chart wrap */
+  .chart-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 14px; }
+  .chart-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+
+  /* Status bar */
+  .status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface2); border-radius: 4px; margin-bottom: 12px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text2); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .footer-author { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); }
+  .footer-author span { color: var(--accent); }
+  .footer-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .footer-tag { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text3); border: 1px solid var(--border); padding: 3px 8px; border-radius: 2px; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="header-left">
+      <a href="https://mikloszpiotr.github.io" class="back-link">&#8592; mikloszpiotr.github.io</a>
+      <div class="case-badge">CASE STUDY 02 &mdash; NETWORK DESIGN</div>
+      <h1>Supply Chain <span>Network</span><br>Design Tool</h1>
+      <p class="header-desc">Interactive network optimiser with k-means warehouse placement, greedy transport assignment, and live disruption simulation.</p>
+    </div>
+    <div class="header-right">
+      <div class="ml-badge"><span class="ml-dot"></span> ML ALGORITHMS ACTIVE</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-align:right;">K-Means &middot; Greedy Optimiser &middot; Disruption AI</div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi blue">  <div class="kpi-label">Total Network Cost</div><div class="kpi-value" id="kpiCost">--</div><div class="kpi-delta" id="kpiCostD"></div></div>
+    <div class="kpi green"> <div class="kpi-label">Avg Delivery Days</div> <div class="kpi-value" id="kpiDays">--</div><div class="kpi-delta" id="kpiDaysD"></div></div>
+    <div class="kpi purple"><div class="kpi-label">Network Coverage</div>  <div class="kpi-value" id="kpiCov">--</div> <div class="kpi-delta" id="kpiCovD"></div></div>
+    <div class="kpi amber"> <div class="kpi-label">Utilisation Avg</div>   <div class="kpi-value" id="kpiUtil">--</div><div class="kpi-delta" id="kpiUtilD"></div></div>
+    <div class="kpi red">   <div class="kpi-label">Disruption Risk</div>   <div class="kpi-value" id="kpiRisk">--</div><div class="kpi-delta" id="kpiRiskD"></div></div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT -->
+    <div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Network Parameters</span><span class="panel-tag">Configure</span></div>
+        <div class="panel-body">
+
+          <div class="control-group">
+            <div class="control-label">Industry <span class="control-val" id="catVal">FMCG</span></div>
+            <select id="category">
+              <option value="fmcg">FMCG &mdash; Beverages &amp; CPG</option>
+              <option value="pharma">Pharma &mdash; OTC Products</option>
+              <option value="elec">Electronics &mdash; Consumer</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Warehouses (K-Means K) <span class="control-val" id="whVal">3</span></div>
+            <input type="range" id="numWH" min="1" max="6" value="3" step="1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Customer Nodes <span class="control-val" id="custVal">12</span></div>
+            <input type="range" id="numCust" min="6" max="20" value="12" step="1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Supplier Nodes <span class="control-val" id="suppVal">4</span></div>
+            <input type="range" id="numSupp" min="2" max="8" value="4" step="1">
+          </div>
+
+          <hr class="divider">
+
+          <div class="control-group">
+            <div class="control-label">Transport Cost / km <span class="control-val" id="tcVal">2.4</span></div>
+            <input type="range" id="transportCost" min="0.5" max="6" value="2.4" step="0.1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">WH Fixed Cost (k$/yr) <span class="control-val" id="whcVal">180</span></div>
+            <input type="range" id="whCost" min="50" max="500" value="180" step="10">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Demand Concentration <span class="control-val" id="concVal">Medium</span></div>
+            <input type="range" id="concentration" min="1" max="3" value="2" step="1">
+          </div>
+
+          <hr class="divider">
+
+          <button class="run-btn" id="optimiseBtn">&#9654; Optimise Network</button>
+          <button class="disrupt-btn" id="disruptBtn">&#9888; Simulate Disruption</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel">
+        <div class="tabs">
+          <div class="tab active" data-tab="network">Network Map</div>
+          <div class="tab" data-tab="nodes">Node Analysis</div>
+          <div class="tab" data-tab="cost">Cost Breakdown</div>
+          <div class="tab" data-tab="resilience">Resilience</div>
+        </div>
+
+        <!-- Network Map -->
+        <div class="tab-content active" id="tab-network">
+          <div id="statusBar" class="status-bar">
+            <div class="status-dot" style="background:var(--accent3)"></div>
+            <span id="statusText">Network optimised &mdash; click a warehouse node to simulate disruption</span>
+          </div>
+          <canvas id="networkCanvas"></canvas>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Supplier</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00d4ff"></div>Warehouse (K-Means)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Customer</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Disrupted</div>
+            <div class="legend-item"><div class="legend-line" style="background:rgba(0,212,255,0.4)"></div>WH &rarr; Customer</div>
+            <div class="legend-item"><div class="legend-line" style="background:rgba(245,158,11,0.4)"></div>Supplier &rarr; WH</div>
+          </div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: K-Means Warehouse Placement</div>
+            <div class="ml-box-text">Warehouse positions initialised via <code>K-Means++</code> seeding on weighted customer coordinates. Iterates centroid updates until convergence (delta &lt; 0.001). Each customer assigned to nearest warehouse by Euclidean distance weighted by demand volume. <code>K</code> = number of warehouses set by slider.</div>
+          </div>
+        </div>
+
+        <!-- Node Analysis -->
+        <div class="tab-content" id="tab-nodes">
+          <div class="node-list" id="nodeList"></div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: Greedy Transport Optimiser</div>
+            <div class="ml-box-text">After K-Means placement, a <code>greedy assignment</code> loop minimises total transport cost by evaluating all warehouse-customer pairs ranked by cost-per-unit-demand. Capacity constraints applied per warehouse. Re-runs automatically after any disruption event to find next-best assignment.</div>
+          </div>
+        </div>
+
+        <!-- Cost Breakdown -->
+        <div class="tab-content" id="tab-cost">
+          <div class="chart-wrap"><div class="chart-label">Cost Breakdown &mdash; Transport vs Fixed vs Inventory</div><canvas id="costChart" height="200"></canvas></div>
+          <table class="cost-table" id="costTable">
+            <thead><tr><th>Warehouse</th><th>Customers</th><th>Transport Cost</th><th>Fixed Cost</th><th>Utilisation</th><th>Status</th></tr></thead>
+            <tbody id="costTbody"></tbody>
+          </table>
+          <div class="ml-box">
+            <div class="ml-box-title">Executive Insight</div>
+            <div class="ml-box-text" id="costInsight">Run optimisation to generate insight.</div>
+          </div>
+        </div>
+
+        <!-- Resilience -->
+        <div class="tab-content" id="tab-resilience">
+          <div class="chart-wrap"><div class="chart-label">Resilience Score by Warehouse &mdash; Single-Node Failure Impact</div><canvas id="resilienceChart" height="200"></canvas></div>
+          <div class="chart-wrap"><div class="chart-label">Cost Impact of Each Node Failure</div><canvas id="impactChart" height="180"></canvas></div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: Disruption Impact Scoring</div>
+            <div class="ml-box-text">For each warehouse, the optimiser runs a <code>counterfactual simulation</code>: removes the node, re-runs greedy assignment, and measures delta-cost and delta-coverage. Resilience score = <code>1 - (impact / max_impact)</code>. Nodes with score &lt; 0.4 flagged as critical single points of failure.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-author">Built by <span>Piotr Miklosz</span> &middot; Supply Chain Analytics Portfolio</div>
+    <div class="footer-tags">
+      <span class="footer-tag">NETWORK DESIGN</span>
+      <span class="footer-tag">K-MEANS</span>
+      <span class="footer-tag">GREEDY OPTIMISER</span>
+      <span class="footer-tag">DISRUPTION SIM</span>
+      <span class="footer-tag">JS ML</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────────
+var state = {
+  suppliers: [], warehouses: [], customers: [],
+  assignments: [],   // customer index -> warehouse index
+  suppAssign: [],    // supplier index -> warehouse index
+  disrupted: -1,     // warehouse index, -1 = none
+  kmIter: 0
+};
+var charts = {};
+var CAT = {
+  fmcg:  { label: 'FMCG',         costMult: 1.0, demandScale: 1.0,  color: '#00d4ff' },
+  pharma:{ label: 'Pharma',        costMult: 1.4, demandScale: 0.6,  color: '#7c3aed' },
+  elec:  { label: 'Electronics',   costMult: 1.2, demandScale: 0.85, color: '#10b981' }
+};
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function rnd(n) { return Math.round(n); }
+function rnd1(n) { return Math.round(n * 10) / 10; }
+function fmtM(n) { return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(0)+'K' : rnd(n).toString(); }
+function clamp(v,lo,hi) { return Math.max(lo, Math.min(hi, v)); }
+function dist(a, b) { var dx = a.x - b.x, dy = a.y - b.y; return Math.sqrt(dx*dx + dy*dy); }
+function getP() {
+  return {
+    cat:   document.getElementById('category').value,
+    k:     +document.getElementById('numWH').value,
+    nCust: +document.getElementById('numCust').value,
+    nSupp: +document.getElementById('numSupp').value,
+    tc:    +document.getElementById('transportCost').value,
+    whc:   +document.getElementById('whCost').value,
+    conc:  +document.getElementById('concentration').value
+  };
+}
+
+// ── SEEDED RANDOM (reproducible per category) ─────────────────────────────────
+function seededRand(seed) {
+  var s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+// ── GENERATE NETWORK ───────────────────────────────────────────────────────────
+function generateNetwork(p) {
+  var rand = seededRand(p.cat === 'fmcg' ? 42 : p.cat === 'pharma' ? 137 : 99);
+  var conc = p.conc;
+
+  // Customer nodes — clustered by concentration setting
+  var customers = [];
+  var centers = [];
+  var nClusters = conc === 1 ? 2 : conc === 2 ? 3 : 5;
+  for (var c = 0; c < nClusters; c++) {
+    centers.push({ x: 0.15 + rand() * 0.7, y: 0.15 + rand() * 0.7 });
+  }
+  for (var i = 0; i < p.nCust; i++) {
+    var center = centers[i % nClusters];
+    var spread = conc === 1 ? 0.25 : conc === 2 ? 0.18 : 0.10;
+    var cx = clamp(center.x + (rand() - 0.5) * spread * 2, 0.05, 0.95);
+    var cy = clamp(center.y + (rand() - 0.5) * spread * 2, 0.05, 0.95);
+    customers.push({
+      x: cx, y: cy,
+      demand: rnd(500 + rand() * 1500) * CAT[p.cat].demandScale,
+      name: 'C' + (i + 1)
+    });
+  }
+
+  // Supplier nodes — edges of map
+  var suppPositions = [
+    {x:0.06, y:0.20}, {x:0.06, y:0.60}, {x:0.94, y:0.20},
+    {x:0.94, y:0.65}, {x:0.50, y:0.04}, {x:0.50, y:0.96},
+    {x:0.15, y:0.92}, {x:0.85, y:0.06}
+  ];
+  var suppliers = [];
+  for (var s = 0; s < p.nSupp; s++) {
+    var sp = suppPositions[s % suppPositions.length];
+    suppliers.push({ x: sp.x, y: sp.y, capacity: rnd(3000 + rand() * 5000), name: 'S' + (s + 1) });
+  }
+
+  return { customers: customers, suppliers: suppliers };
+}
+
+// ── K-MEANS++ WAREHOUSE PLACEMENT ─────────────────────────────────────────────
+function kMeansPlus(customers, k, rand) {
+  // K-Means++ initialisation: first centroid random, rest chosen prob proportional to dist^2
+  var centroids = [];
+  var idx = rnd(rand() * customers.length);
+  centroids.push({ x: customers[idx].x, y: customers[idx].y });
+
+  for (var c = 1; c < k; c++) {
+    var dists = customers.map(function(cu) {
+      var minD = Infinity;
+      for (var j = 0; j < centroids.length; j++) { var d = dist(cu, centroids[j]); if (d < minD) minD = d; }
+      return minD * minD * cu.demand; // weight by demand
+    });
+    var total = dists.reduce(function(a,b){return a+b;}, 0);
+    var r = rand() * total, cumul = 0;
+    for (var i = 0; i < customers.length; i++) {
+      cumul += dists[i];
+      if (cumul >= r) { centroids.push({ x: customers[i].x, y: customers[i].y }); break; }
+    }
+  }
+
+  // Iterate
+  var iter = 0, moved = true;
+  while (moved && iter < 100) {
+    moved = false; iter++;
+    // Assign each customer to nearest centroid
+    var clusters = centroids.map(function(){ return []; });
+    for (var i = 0; i < customers.length; i++) {
+      var best = 0, bd = Infinity;
+      for (var j = 0; j < centroids.length; j++) { var d = dist(customers[i], centroids[j]); if (d < bd) { bd = d; best = j; } }
+      clusters[best].push(i);
+    }
+    // Update centroids (demand-weighted)
+    for (var j = 0; j < centroids.length; j++) {
+      if (clusters[j].length === 0) continue;
+      var wx = 0, wy = 0, wd = 0;
+      for (var ci = 0; ci < clusters[j].length; ci++) {
+        var cu = customers[clusters[j][ci]];
+        wx += cu.x * cu.demand; wy += cu.y * cu.demand; wd += cu.demand;
+      }
+      var nx = wx / wd, ny = wy / wd;
+      if (Math.abs(nx - centroids[j].x) > 0.001 || Math.abs(ny - centroids[j].y) > 0.001) moved = true;
+      centroids[j] = { x: nx, y: ny };
+    }
+  }
+  state.kmIter = iter;
+  return centroids;
+}
+
+// ── GREEDY ASSIGNMENT ──────────────────────────────────────────────────────────
+function greedyAssign(customers, warehouses, p, disruptedIdx) {
+  var tc = p.tc;
+  var assignments = new Array(customers.length).fill(-1);
+  var whLoad = new Array(warehouses.length).fill(0);
+  var whCapacity = warehouses.map(function() { return 15000; }); // capacity units
+
+  // Build all pairs sorted by cost
+  var pairs = [];
+  for (var i = 0; i < customers.length; i++) {
+    for (var j = 0; j < warehouses.length; j++) {
+      if (j === disruptedIdx) continue;
+      var d = dist(customers[i], warehouses[j]) * 800; // scale to km
+      var cost = d * tc * customers[i].demand;
+      pairs.push({ ci: i, wi: j, cost: cost, dist: d });
+    }
+  }
+  pairs.sort(function(a, b) { return a.cost - b.cost; });
+
+  // Greedy assign lowest cost first
+  for (var pi = 0; pi < pairs.length; pi++) {
+    var pr = pairs[pi];
+    if (assignments[pr.ci] !== -1) continue;
+    if (whLoad[pr.wi] + customers[pr.ci].demand <= whCapacity[pr.wi]) {
+      assignments[pr.ci] = pr.wi;
+      whLoad[pr.wi] += customers[pr.ci].demand;
+    }
+  }
+
+  // Fallback: any unassigned -> nearest non-disrupted
+  for (var i = 0; i < customers.length; i++) {
+    if (assignments[i] === -1) {
+      var bd = Infinity, best = 0;
+      for (var j = 0; j < warehouses.length; j++) {
+        if (j === disruptedIdx) continue;
+        var d = dist(customers[i], warehouses[j]);
+        if (d < bd) { bd = d; best = j; }
+      }
+      assignments[i] = best;
+    }
+  }
+
+  return { assignments: assignments, loads: whLoad };
+}
+
+// ── SUPPLIER ASSIGNMENT ────────────────────────────────────────────────────────
+function assignSuppliers(suppliers, warehouses, disruptedIdx) {
+  return suppliers.map(function(s) {
+    var bd = Infinity, best = 0;
+    for (var j = 0; j < warehouses.length; j++) {
+      if (j === disruptedIdx) continue;
+      var d = dist(s, warehouses[j]);
+      if (d < bd) { bd = d; best = j; }
+    }
+    return best;
+  });
+}
+
+// ── COMPUTE METRICS ────────────────────────────────────────────────────────────
+function computeMetrics(customers, warehouses, assignments, loads, p, disruptedIdx) {
+  var tc = p.tc, whc = p.whc;
+  var totalTransport = 0, totalFixed = 0;
+  var activeWH = 0;
+
+  for (var j = 0; j < warehouses.length; j++) {
+    if (j === disruptedIdx) continue;
+    activeWH++;
+    totalFixed += whc * 1000;
+  }
+
+  var totalDemand = 0, coveredDemand = 0;
+  var totalDist = 0;
+  for (var i = 0; i < customers.length; i++) {
+    totalDemand += customers[i].demand;
+    if (assignments[i] !== -1 && assignments[i] !== disruptedIdx) {
+      var d = dist(customers[i], warehouses[assignments[i]]) * 800;
+      totalTransport += d * tc * customers[i].demand / 1000;
+      totalDist += d;
+      coveredDemand += customers[i].demand;
+    }
+  }
+
+  var avgDays = 1 + (totalDist / customers.length) / 400;
+  var coverage = coveredDemand / totalDemand * 100;
+  var maxLoad = 15000;
+  var utilSum = 0;
+  var activeCount = 0;
+  for (var j = 0; j < warehouses.length; j++) {
+    if (j === disruptedIdx) continue;
+    utilSum += loads[j] / maxLoad * 100;
+    activeCount++;
+  }
+  var avgUtil = activeCount > 0 ? utilSum / activeCount : 0;
+
+  var riskScore = disruptedIdx >= 0 ? 85 : Math.max(10, 40 - activeWH * 8 + (100 - coverage) * 0.5);
+
+  return {
+    totalCost: rnd(totalTransport + totalFixed),
+    avgDays: rnd1(avgDays),
+    coverage: rnd(coverage),
+    avgUtil: rnd(avgUtil),
+    risk: rnd(riskScore),
+    transportCost: rnd(totalTransport),
+    fixedCost: rnd(totalFixed),
+    loads: loads
+  };
+}
+
+// ── DRAW NETWORK CANVAS ────────────────────────────────────────────────────────
+function drawNetwork() {
+  var canvas = document.getElementById('networkCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var p = getP();
+  var disruptedIdx = state.disrupted;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = 'rgba(30,45,69,0.4)';
+  ctx.lineWidth = 0.5;
+  for (var gx = 0; gx < W; gx += 60) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+  for (var gy = 0; gy < H; gy += 60) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+  var wh = state.warehouses, cu = state.customers, su = state.suppliers;
+  var asgn = state.assignments, sAsgn = state.suppAssign;
+  if (!wh.length) return;
+
+  function px(n) { return n.x * W; }
+  function py(n) { return n.y * H; }
+
+  // Draw supplier -> warehouse lines
+  for (var si = 0; si < su.length; si++) {
+    var wi = sAsgn[si];
+    if (wi === disruptedIdx) continue;
+    ctx.beginPath();
+    ctx.moveTo(px(su[si]), py(su[si]));
+    ctx.lineTo(px(wh[wi]), py(wh[wi]));
+    ctx.strokeStyle = 'rgba(245,158,11,0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Draw warehouse -> customer lines
+  for (var ci = 0; ci < cu.length; ci++) {
+    var wi = asgn[ci];
+    if (wi < 0 || wi === disruptedIdx) {
+      // Disrupted — draw red dashed to nearest available
+      ctx.beginPath();
+      ctx.moveTo(px(cu[ci]), py(cu[ci]));
+      ctx.lineTo(px(cu[ci]) + 20, py(cu[ci]) - 20);
+      ctx.strokeStyle = 'rgba(239,68,68,0.5)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      continue;
+    }
+    ctx.beginPath();
+    ctx.moveTo(px(wh[wi]), py(wh[wi]));
+    ctx.lineTo(px(cu[ci]), py(cu[ci]));
+    ctx.strokeStyle = 'rgba(0,212,255,0.18)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.stroke();
+  }
+
+  // Draw supplier nodes
+  for (var si = 0; si < su.length; si++) {
+    var sx = px(su[si]), sy = py(su[si]);
+    ctx.beginPath();
+    // Diamond shape
+    ctx.moveTo(sx, sy - 9);
+    ctx.lineTo(sx + 9, sy);
+    ctx.lineTo(sx, sy + 9);
+    ctx.lineTo(sx - 9, sy);
+    ctx.closePath();
+    ctx.fillStyle = '#f59e0b';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(245,158,11,0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#0a0e1a';
+    ctx.font = 'bold 8px DM Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(su[si].name, sx, sy);
+  }
+
+  // Draw warehouse nodes
+  for (var wi = 0; wi < wh.length; wi++) {
+    var wx = px(wh[wi]), wy = py(wh[wi]);
+    var isDisrupted = wi === disruptedIdx;
+    var col = isDisrupted ? '#ef4444' : '#00d4ff';
+    var glowCol = isDisrupted ? 'rgba(239,68,68,0.15)' : 'rgba(0,212,255,0.12)';
+
+    // Glow
+    ctx.beginPath();
+    ctx.arc(wx, wy, 22, 0, Math.PI * 2);
+    ctx.fillStyle = glowCol;
+    ctx.fill();
+
+    // Hexagon warehouse shape
+    ctx.beginPath();
+    for (var a = 0; a < 6; a++) {
+      var angle = Math.PI / 3 * a - Math.PI / 6;
+      var hx = wx + 12 * Math.cos(angle), hy = wy + 12 * Math.sin(angle);
+      if (a === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+    }
+    ctx.closePath();
+    ctx.fillStyle = isDisrupted ? '#ef4444' : '#00d4ff';
+    ctx.fill();
+    ctx.strokeStyle = isDisrupted ? '#ff6b6b' : '#7ee8fa';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#0a0e1a';
+    ctx.font = 'bold 9px DM Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('W' + (wi + 1), wx, wy);
+
+    // Label
+    ctx.fillStyle = isDisrupted ? '#ef4444' : '#94a3b8';
+    ctx.font = '9px DM Mono, monospace';
+    ctx.fillText(isDisrupted ? 'DISRUPTED' : 'WH ' + (wi + 1), wx, wy + 20);
+  }
+
+  // Draw customer nodes
+  for (var ci = 0; ci < cu.length; ci++) {
+    var cx2 = px(cu[ci]), cy2 = py(cu[ci]);
+    var unserved = asgn[ci] === disruptedIdx || asgn[ci] < 0;
+    var r = 4 + cu[ci].demand / 1000;
+    ctx.beginPath();
+    ctx.arc(cx2, cy2, Math.min(r, 9), 0, Math.PI * 2);
+    ctx.fillStyle = unserved ? 'rgba(239,68,68,0.8)' : 'rgba(16,185,129,0.7)';
+    ctx.fill();
+    ctx.strokeStyle = unserved ? '#ef4444' : '#10b981';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+}
+
+// ── RESIZE CANVAS ─────────────────────────────────────────────────────────────
+function resizeCanvas() {
+  var canvas = document.getElementById('networkCanvas');
+  var container = canvas.parentElement;
+  canvas.width  = container.clientWidth - 32;
+  canvas.height = 420;
+}
+
+// ── UPDATE KPIs ────────────────────────────────────────────────────────────────
+function updateKPIs(m) {
+  document.getElementById('kpiCost').textContent = '$' + fmtM(m.totalCost);
+  var cd = document.getElementById('kpiCostD');
+  cd.className = 'kpi-delta up'; cd.textContent = 'Optimised network';
+
+  document.getElementById('kpiDays').textContent = rnd1(m.avgDays) + 'd';
+  var dd = document.getElementById('kpiDaysD');
+  dd.className = 'kpi-delta ' + (m.avgDays < 2 ? 'up' : m.avgDays < 3 ? 'warn' : 'down');
+  dd.textContent = m.avgDays < 2 ? '✓ fast delivery' : m.avgDays < 3 ? '⚠ monitor' : '✗ slow network';
+
+  document.getElementById('kpiCov').textContent = m.coverage + '%';
+  var cvd = document.getElementById('kpiCovD');
+  cvd.className = 'kpi-delta ' + (m.coverage > 95 ? 'up' : m.coverage > 80 ? 'warn' : 'down');
+  cvd.textContent = m.coverage > 95 ? '✓ full coverage' : m.coverage > 80 ? '⚠ partial' : '✗ gaps detected';
+
+  document.getElementById('kpiUtil').textContent = m.avgUtil + '%';
+  var ud = document.getElementById('kpiUtilD');
+  ud.className = 'kpi-delta ' + (m.avgUtil > 60 && m.avgUtil < 90 ? 'up' : 'warn');
+  ud.textContent = m.avgUtil > 60 && m.avgUtil < 90 ? '✓ healthy' : m.avgUtil >= 90 ? '⚠ near capacity' : '↓ underutilised';
+
+  document.getElementById('kpiRisk').textContent = m.risk + '%';
+  var rd = document.getElementById('kpiRiskD');
+  rd.className = 'kpi-delta ' + (m.risk < 25 ? 'up' : m.risk < 50 ? 'warn' : 'down');
+  rd.textContent = m.risk < 25 ? '✓ resilient' : m.risk < 50 ? '⚠ moderate risk' : '✗ high risk';
+}
+
+// ── RENDER NODE LIST ───────────────────────────────────────────────────────────
+function renderNodeList() {
+  var p = getP();
+  var wh = state.warehouses, cu = state.customers, su = state.suppliers;
+  var asgn = state.assignments, loads = state.metrics ? state.metrics.loads : [];
+  var html = '';
+
+  // Warehouses
+  for (var wi = 0; wi < wh.length; wi++) {
+    var isDisrupted = wi === state.disrupted;
+    var load = loads[wi] || 0;
+    var util = rnd(load / 15000 * 100);
+    var customers_served = asgn.filter(function(a){ return a === wi; }).length;
+    html += '<div class="node-row' + (isDisrupted ? ' disrupted' : '') + '">'
+          + '<div class="node-dot" style="background:' + (isDisrupted ? '#ef4444' : '#00d4ff') + '"></div>'
+          + '<div class="node-name">Warehouse W' + (wi+1) + '</div>'
+          + '<div class="node-meta">' + customers_served + ' customers &middot; ' + util + '% util</div>'
+          + '<button class="node-btn' + (isDisrupted ? ' disrupted' : '') + '" data-wi="' + wi + '">' + (isDisrupted ? 'RESTORE' : 'DISRUPT') + '</button>'
+          + '</div>';
+  }
+
+  // Suppliers
+  for (var si = 0; si < su.length; si++) {
+    html += '<div class="node-row">'
+          + '<div class="node-dot" style="background:#f59e0b"></div>'
+          + '<div class="node-name">Supplier ' + su[si].name + '</div>'
+          + '<div class="node-meta">Cap: ' + fmtM(su[si].capacity) + ' &middot; WH' + (state.suppAssign[si]+1) + '</div>'
+          + '<div class="node-meta" style="color:var(--accent3)">Active</div>'
+          + '</div>';
+  }
+
+  document.getElementById('nodeList').innerHTML = html;
+
+  // Attach disrupt buttons
+  var btns = document.querySelectorAll('.node-btn[data-wi]');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].addEventListener('click', (function(wi){
+      return function() {
+        state.disrupted = (state.disrupted === wi) ? -1 : wi;
+        rerunAssignment();
+      };
+    })(parseInt(btns[i].getAttribute('data-wi'))));
+  }
+}
+
+// ── DRAW COST CHART ────────────────────────────────────────────────────────────
+function drawCostChart(m, warehouses, assignments, customers, p) {
+  if (charts['cost']) { charts['cost'].destroy(); delete charts['cost']; }
+  var wh = warehouses;
+  var labels = [], transport = [], fixed = [], inventory = [];
+  for (var wi = 0; wi < wh.length; wi++) {
+    if (wi === state.disrupted) continue;
+    labels.push('WH ' + (wi+1));
+    var custDemand = 0;
+    for (var ci = 0; ci < customers.length; ci++) {
+      if (assignments[ci] === wi) {
+        custDemand += customers[ci].demand;
+        var d = dist(customers[ci], wh[wi]) * 800;
+        transport.push((transport[transport.length] || 0) + rnd(d * p.tc * customers[ci].demand / 1000));
+      }
+    }
+    fixed.push(p.whc * 1000);
+    inventory.push(rnd(custDemand * 0.05 * p.tc * 10));
+  }
+  // Rebuild properly
+  transport = []; fixed = []; inventory = [];
+  for (var wi = 0; wi < wh.length; wi++) {
+    if (wi === state.disrupted) continue;
+    var t = 0;
+    for (var ci = 0; ci < customers.length; ci++) {
+      if (assignments[ci] === wi) {
+        var d = dist(customers[ci], wh[wi]) * 800;
+        t += d * p.tc * customers[ci].demand / 1000;
+      }
+    }
+    transport.push(rnd(t));
+    fixed.push(p.whc * 1000);
+    var load = m.loads[wi] || 0;
+    inventory.push(rnd(load * 0.04 * p.tc * 8));
+  }
+
+  var ctx = document.getElementById('costChart').getContext('2d');
+  charts['cost'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Transport',  data: transport,  backgroundColor: 'rgba(0,212,255,0.7)',   borderRadius: 3 },
+        { label: 'Fixed',      data: fixed,      backgroundColor: 'rgba(124,58,237,0.7)',  borderRadius: 3 },
+        { label: 'Inventory',  data: inventory,  backgroundColor: 'rgba(245,158,11,0.7)',  borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 11, family: "'DM Mono'" }, boxWidth: 12 } },
+        tooltip: { backgroundColor: '#0a0e1a', borderColor: '#1e2d45', borderWidth: 1, titleColor: '#94a3b8', bodyColor: '#e2e8f0' }
+      },
+      scales: {
+        x: { stacked: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.6)' } },
+        y: { stacked: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.6)' } }
+      }
+    }
+  });
+
+  // Cost table
+  var tbody = '';
+  var wi2 = 0;
+  for (var wi = 0; wi < warehouses.length; wi++) {
+    if (wi === state.disrupted) { tbody += '<tr><td>WH ' + (wi+1) + '</td><td colspan="4" style="color:var(--danger)">DISRUPTED</td><td class="bad">OFFLINE</td></tr>'; continue; }
+    var custCount = assignments.filter(function(a){ return a === wi; }).length;
+    var util = rnd((m.loads[wi] || 0) / 15000 * 100);
+    var utilClass = util > 85 ? 'warn' : util < 30 ? 'warn' : 'good';
+    tbody += '<tr>'
+           + '<td>WH ' + (wi+1) + '</td>'
+           + '<td>' + custCount + '</td>'
+           + '<td class="good">$' + fmtM(transport[wi2]) + '</td>'
+           + '<td>$' + fmtM(fixed[wi2]) + '</td>'
+           + '<td class="' + utilClass + '">' + util + '%</td>'
+           + '<td class="good">Active</td>'
+           + '</tr>';
+    wi2++;
+  }
+  document.getElementById('costTbody').innerHTML = tbody;
+
+  // Executive insight
+  var p2 = getP();
+  var totalCost = m.totalCost;
+  var bestCount = warehouses.length - (state.disrupted >= 0 ? 1 : 0);
+  document.getElementById('costInsight').innerHTML =
+    'Network of <code>' + bestCount + ' active warehouses</code> serves ' + customers.length + ' customers at total cost <code>$' + fmtM(totalCost) + '/yr</code>. '
+    + (m.avgUtil > 85 ? 'Capacity <code>near limit</code> — consider adding a warehouse node.' : m.avgUtil < 35 ? 'Warehouses <code>underutilised</code> — consolidation could reduce fixed costs by ~' + rnd((1 - m.avgUtil/100) * 30) + '%.' : 'Utilisation in <code>optimal range</code> (35-85%).')
+    + (state.disrupted >= 0 ? ' <span style="color:var(--danger)">WARNING: disruption active on WH' + (state.disrupted+1) + ' — ' + rnd((100 - m.coverage)) + '% demand at risk.</span>' : '');
+}
+
+// ── RESILIENCE CHARTS ──────────────────────────────────────────────────────────
+function drawResilienceCharts(customers, warehouses, p) {
+  if (charts['res']) { charts['res'].destroy(); delete charts['res']; }
+  if (charts['imp']) { charts['imp'].destroy(); delete charts['imp']; }
+
+  var labels = [], resScores = [], costImpact = [], covImpact = [];
+  var baseAssign = greedyAssign(customers, warehouses, p, -1);
+  var baseMetrics = computeMetrics(customers, warehouses, baseAssign.assignments, baseAssign.loads, p, -1);
+
+  for (var wi = 0; wi < warehouses.length; wi++) {
+    labels.push('WH ' + (wi+1));
+    var fa = greedyAssign(customers, warehouses, p, wi);
+    var fm = computeMetrics(customers, warehouses, fa.assignments, fa.loads, p, wi);
+    var costDelta = fm.totalCost - baseMetrics.totalCost;
+    var covDelta  = baseMetrics.coverage - fm.coverage;
+    costImpact.push(rnd(costDelta));
+    covImpact.push(rnd(covDelta));
+  }
+
+  var maxImpact = Math.max.apply(null, costImpact.map(Math.abs));
+  for (var wi = 0; wi < warehouses.length; wi++) {
+    resScores.push(rnd((1 - costImpact[wi] / (maxImpact || 1)) * 100));
+  }
+
+  var cols = resScores.map(function(s) { return s < 40 ? 'rgba(239,68,68,0.8)' : s < 70 ? 'rgba(245,158,11,0.8)' : 'rgba(16,185,129,0.8)'; });
+
+  var ctx1 = document.getElementById('resilienceChart').getContext('2d');
+  charts['res'] = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ label: 'Resilience Score', data: resScores, backgroundColor: cols, borderRadius: 4 }] },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0a0e1a', borderColor: '#1e2d45', borderWidth: 1, titleColor: '#94a3b8', bodyColor: '#e2e8f0' } },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.4)' } },
+        y: { min: 0, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.4)' } }
+      }
+    }
+  });
+
+  var ctx2 = document.getElementById('impactChart').getContext('2d');
+  charts['imp'] = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: labels, datasets: [
+      { label: 'Cost Impact ($)', data: costImpact, backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 3 },
+      { label: 'Coverage Loss (%)', data: covImpact, backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 3, yAxisID: 'y2' }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10, family: "'DM Mono'" }, boxWidth: 10 } }, tooltip: { backgroundColor: '#0a0e1a', borderColor: '#1e2d45', borderWidth: 1, titleColor: '#94a3b8', bodyColor: '#e2e8f0' } },
+      scales: {
+        x:  { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.4)' } },
+        y:  { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,45,69,0.4)' } },
+        y2: { position: 'right', ticks: { color: '#f59e0b' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── RERUN ASSIGNMENT (after disruption) ────────────────────────────────────────
+function rerunAssignment() {
+  var p = getP();
+  var disruptedIdx = state.disrupted;
+  var result = greedyAssign(state.customers, state.warehouses, p, disruptedIdx);
+  state.assignments = result.assignments;
+  state.suppAssign  = assignSuppliers(state.suppliers, state.warehouses, disruptedIdx);
+  var m = computeMetrics(state.customers, state.warehouses, result.assignments, result.loads, p, disruptedIdx);
+  state.metrics = m;
+
+  updateKPIs(m);
+  resizeCanvas();
+  drawNetwork();
+  renderNodeList();
+  drawCostChart(m, state.warehouses, result.assignments, state.customers, p);
+
+  var statusDot  = document.querySelector('#statusBar .status-dot');
+  var statusText = document.getElementById('statusText');
+  if (disruptedIdx >= 0) {
+    statusDot.style.background  = '#ef4444';
+    statusText.textContent = 'DISRUPTION ACTIVE: WH' + (disruptedIdx+1) + ' offline — network re-optimised by greedy algorithm';
+    document.getElementById('disruptBtn').classList.add('active');
+  } else {
+    statusDot.style.background  = '#10b981';
+    statusText.textContent = 'Network optimised — click "Simulate Disruption" or a warehouse node to test resilience';
+    document.getElementById('disruptBtn').classList.remove('active');
+  }
+}
+
+// ── MAIN OPTIMISE ──────────────────────────────────────────────────────────────
+function optimiseNetwork() {
+  var p = getP();
+  state.disrupted = -1;
+  document.getElementById('catVal').textContent = CAT[p.cat].label;
+
+  var network = generateNetwork(p);
+  state.customers = network.customers;
+  state.suppliers  = network.suppliers;
+
+  var rand = seededRand(p.cat === 'fmcg' ? 42 : p.cat === 'pharma' ? 137 : 99);
+  var centroids = kMeansPlus(state.customers, p.k, rand);
+  state.warehouses = centroids.map(function(c, i) { return { x: c.x, y: c.y, name: 'W' + (i+1) }; });
+
+  rerunAssignment();
+  drawResilienceCharts(state.customers, state.warehouses, p);
+
+  document.getElementById('disruptBtn').classList.remove('active');
+}
+
+// ── SIMULATE DISRUPTION ────────────────────────────────────────────────────────
+function simulateDisruption() {
+  if (state.disrupted >= 0) {
+    state.disrupted = -1;
+  } else {
+    // Disrupt the warehouse with highest utilisation (most critical)
+    if (!state.metrics) return;
+    var maxLoad = -1, worstWH = 0;
+    for (var wi = 0; wi < state.warehouses.length; wi++) {
+      if ((state.metrics.loads[wi] || 0) > maxLoad) { maxLoad = state.metrics.loads[wi]; worstWH = wi; }
+    }
+    state.disrupted = worstWH;
+  }
+  rerunAssignment();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Slider labels
+  var sliders = {
+    'numWH':          { el: 'whVal',   fmt: function(v){ return v; } },
+    'numCust':        { el: 'custVal', fmt: function(v){ return v; } },
+    'numSupp':        { el: 'suppVal', fmt: function(v){ return v; } },
+    'transportCost':  { el: 'tcVal',   fmt: function(v){ return v; } },
+    'whCost':         { el: 'whcVal',  fmt: function(v){ return v; } },
+    'concentration':  { el: 'concVal', fmt: function(v){ return ['', 'Dispersed', 'Medium', 'Clustered'][v]; } }
+  };
+  for (var id in sliders) {
+    (function(sid, cfg) {
+      document.getElementById(sid).addEventListener('input', function() {
+        document.getElementById(cfg.el).textContent = cfg.fmt(this.value);
+      });
+    })(id, sliders[id]);
+  }
+
+  // Tabs
+  var tabs = document.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].addEventListener('click', function() {
+      var name = this.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    });
+  }
+
+  // Canvas click -> disrupt warehouse
+  document.getElementById('networkCanvas').addEventListener('click', function(e) {
+    if (!state.warehouses.length) return;
+    var rect = this.getBoundingClientRect();
+    var mx = (e.clientX - rect.left) / rect.width;
+    var my = (e.clientY - rect.top) / rect.height;
+    for (var wi = 0; wi < state.warehouses.length; wi++) {
+      var wh = state.warehouses[wi];
+      if (Math.abs(wh.x - mx) < 0.04 && Math.abs(wh.y - my) < 0.06) {
+        state.disrupted = (state.disrupted === wi) ? -1 : wi;
+        rerunAssignment();
+        return;
+      }
+    }
+  });
+
+  document.getElementById('optimiseBtn').addEventListener('click', optimiseNetwork);
+  document.getElementById('disruptBtn').addEventListener('click', simulateDisruption);
+
+  window.addEventListener('resize', function() {
+    if (state.warehouses.length) { resizeCanvas(); drawNetwork(); }
+  });
+
+  optimiseNetwork();
+});
+</script>
+</body>
+</html>

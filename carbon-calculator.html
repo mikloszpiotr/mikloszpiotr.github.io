@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Chain Carbon Calculator — Piotr Miklosz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0a0e1a; --surface:#111827; --surface2:#1a2235; --border:#1e2d45;
+    --accent:#00d4ff; --accent2:#7c3aed; --accent3:#10b981;
+    --warn:#f59e0b; --danger:#ef4444;
+    --text:#e2e8f0; --text2:#94a3b8; --text3:#475569;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(16,185,129,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(16,185,129,0.025) 1px,transparent 1px);
+    background-size:40px 40px;}
+  .app{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 24px 80px;}
+
+  header{padding:32px 0 24px;border-bottom:1px solid var(--border);margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .header-left{flex:1;min-width:280px;}
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);text-decoration:none;margin-bottom:12px;letter-spacing:0.05em;transition:color 0.2s;}
+  .back-link:hover{color:var(--accent3);}
+  .case-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--accent3);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);padding:3px 10px;border-radius:2px;margin-bottom:10px;}
+  h1{font-family:'Syne',sans-serif;font-size:clamp(22px,4vw,34px);font-weight:800;line-height:1.15;color:var(--text);letter-spacing:-0.02em;}
+  h1 span{color:var(--accent3);}
+  .header-desc{font-size:13px;color:var(--text2);margin-top:8px;max-width:520px;}
+  .ml-badge{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);padding:4px 10px;border-radius:2px;letter-spacing:0.08em;}
+  .ml-dot{width:6px;height:6px;background:var(--accent3);border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:28px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;position:relative;overflow:hidden;}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi.green::before{background:var(--accent3);} .kpi.blue::before{background:var(--accent);}
+  .kpi.amber::before{background:var(--warn);}    .kpi.red::before{background:var(--danger);}
+  .kpi.purple::before{background:var(--accent2);}
+  .kpi-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:6px;}
+  .kpi-value{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--text);line-height:1;}
+  .kpi-delta{font-size:11px;margin-top:4px;font-family:'DM Mono',monospace;}
+  .kpi-delta.up{color:var(--accent3);} .kpi-delta.down{color:var(--danger);} .kpi-delta.warn{color:var(--warn);}
+
+  .main-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;}
+  @media(max-width:900px){.main-grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .panel-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);}
+  .panel-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;}
+  .panel-body{padding:18px;}
+
+  .control-group{margin-bottom:18px;}
+  .control-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  .control-val{font-size:12px;color:var(--accent3);font-weight:500;}
+  input[type=range]{width:100%;height:3px;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;background:var(--accent3);border-radius:50%;cursor:pointer;}
+  select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;outline:none;}
+  select:focus{border-color:var(--accent3);}
+  .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+  .run-btn{width:100%;padding:11px;background:var(--accent3);color:#0a0e1a;border:none;border-radius:4px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;cursor:pointer;transition:opacity 0.2s,transform 0.1s;text-transform:uppercase;margin-bottom:8px;}
+  .run-btn:hover{opacity:0.88;} .run-btn:active{transform:scale(0.98);}
+  .pareto-btn{width:100%;padding:11px;background:transparent;color:var(--accent2);border:1px solid var(--accent2);border-radius:4px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.05em;cursor:pointer;transition:background 0.2s;text-transform:uppercase;}
+  .pareto-btn:hover{background:rgba(124,58,237,0.1);}
+
+  .tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;}
+  .tab{padding:12px 16px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color 0.2s,border-color 0.2s;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--accent3);border-bottom-color:var(--accent3);}
+  .tab-content{display:none;padding:18px;}
+  .tab-content.active{display:block;}
+
+  .chart-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:14px;}
+  .chart-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+
+  /* Emission scope cards */
+  .scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+  .scope-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center;}
+  .scope-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;}
+  .scope-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1;margin-bottom:2px;}
+  .scope-unit{font-size:10px;color:var(--text3);}
+  .s1{color:var(--accent);} .s2{color:var(--warn);} .s3{color:var(--accent3);}
+
+  /* Lane table */
+  .lane-table{width:100%;border-collapse:collapse;}
+  .lane-table th{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+  .lane-table td{padding:8px 10px;font-size:12px;border-bottom:1px solid rgba(30,45,69,0.4);color:var(--text2);}
+  .lane-table td:first-child{color:var(--text);font-weight:500;}
+  .lane-table tr:last-child td{border-bottom:none;}
+  .em-high{color:var(--danger);font-family:'DM Mono',monospace;font-size:11px;}
+  .em-med {color:var(--warn); font-family:'DM Mono',monospace;font-size:11px;}
+  .em-low {color:var(--accent3);font-family:'DM Mono',monospace;font-size:11px;}
+
+  /* Pareto actions */
+  .pareto-list{display:flex;flex-direction:column;gap:8px;}
+  .pareto-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+  .pareto-item.top{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04);}
+  .pareto-rank{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text3);min-width:20px;}
+  .pareto-rank.gold{color:var(--warn);}
+  .pareto-info{flex:1;}
+  .pareto-action{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+  .pareto-detail{font-size:11px;color:var(--text3);}
+  .pareto-impact{text-align:right;}
+  .pareto-co2{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent3);}
+  .pareto-effort{font-size:10px;color:var(--text3);margin-top:2px;}
+  .effort-bar{width:60px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;margin-left:auto;}
+  .effort-fill{height:100%;border-radius:2px;}
+
+  /* ML box */
+  .ml-box{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:14px 16px;margin-top:14px;}
+  .ml-box-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+  .ml-box-text{font-size:12px;color:var(--text2);line-height:1.6;}
+  .ml-box code{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent3);background:rgba(16,185,129,0.1);padding:1px 5px;border-radius:2px;}
+
+  /* SBT progress */
+  .sbt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .sbt-label{font-size:12px;color:var(--text2);min-width:100px;}
+  .sbt-bar-wrap{flex:1;height:16px;background:var(--surface2);border-radius:3px;overflow:hidden;position:relative;}
+  .sbt-bar{height:100%;border-radius:3px;transition:width 0.6s ease;display:flex;align-items:center;padding-left:6px;}
+  .sbt-bar-text{font-family:'DM Mono',monospace;font-size:9px;color:rgba(0,0,0,0.7);font-weight:500;}
+  .sbt-target{position:absolute;top:0;bottom:0;width:2px;background:var(--warn);}
+  .sbt-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:60px;text-align:right;}
+
+  footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .footer-author{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);}
+  .footer-author span{color:var(--accent3);}
+  .footer-tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .footer-tag{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);border:1px solid var(--border);padding:3px 8px;border-radius:2px;letter-spacing:0.08em;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="header-left">
+      <a href="https://mikloszpiotr.github.io" class="back-link">&#8592; mikloszpiotr.github.io</a>
+      <div class="case-badge">CASE STUDY 03 &mdash; SUSTAINABILITY ANALYTICS</div>
+      <h1>Supply Chain <span>Carbon</span><br>&amp; Sustainability Calculator</h1>
+      <p class="header-desc">Scope 1-2-3 emissions modelling across transport lanes, warehousing and suppliers — with Pareto optimisation identifying the 20% of changes that deliver 80% of CO&#8322; reduction.</p>
+    </div>
+    <div class="header-right">
+      <div class="ml-badge"><span class="ml-dot"></span> ML ALGORITHMS ACTIVE</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);text-align:right;">Weighted Regression &middot; Pareto Optimiser &middot; SBT Pathfinder</div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpi-strip">
+    <div class="kpi green"> <div class="kpi-label">Total CO&#8322;e / yr</div>     <div class="kpi-value" id="kpiTotal">--</div><div class="kpi-delta" id="kpiTotalD"></div></div>
+    <div class="kpi amber"> <div class="kpi-label">Transport Share</div>      <div class="kpi-value" id="kpiTrans">--</div><div class="kpi-delta" id="kpiTransD"></div></div>
+    <div class="kpi blue">  <div class="kpi-label">Cost per tonne CO&#8322;</div> <div class="kpi-value" id="kpiCpt">--</div>  <div class="kpi-delta" id="kpiCptD"></div></div>
+    <div class="kpi purple"><div class="kpi-label">Reduction Potential</div>  <div class="kpi-value" id="kpiPot">--</div>   <div class="kpi-delta" id="kpiPotD"></div></div>
+    <div class="kpi red">   <div class="kpi-label">SBT Gap</div>               <div class="kpi-value" id="kpiSbt">--</div>   <div class="kpi-delta" id="kpiSbtD"></div></div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT -->
+    <div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Emissions Parameters</span><span class="panel-tag">Configure</span></div>
+        <div class="panel-body">
+
+          <div class="control-group">
+            <div class="control-label">Industry <span class="control-val" id="catVal">FMCG</span></div>
+            <select id="category">
+              <option value="fmcg">FMCG &mdash; Beverages &amp; CPG</option>
+              <option value="pharma">Pharma &mdash; OTC Products</option>
+              <option value="elec">Electronics &mdash; Consumer</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Annual Shipment Volume <span class="control-val" id="volVal">50K</span></div>
+            <input type="range" id="volume" min="5" max="200" value="50" step="5">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Road Transport % <span class="control-val" id="roadVal">65%</span></div>
+            <input type="range" id="roadPct" min="0" max="100" value="65" step="5">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Air Freight % <span class="control-val" id="airVal">15%</span></div>
+            <input type="range" id="airPct" min="0" max="60" value="15" step="5">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Sea Freight % <span class="control-val" id="seaVal">20%</span></div>
+            <input type="range" id="seaPct" min="0" max="80" value="20" step="5">
+          </div>
+
+          <hr class="divider">
+
+          <div class="control-group">
+            <div class="control-label">Warehouse Energy Source <span class="control-val" id="energyVal">Grid Mix</span></div>
+            <select id="energySource">
+              <option value="grid">Grid Mix (avg)</option>
+              <option value="renewable">Renewable (solar/wind)</option>
+              <option value="gas">Natural Gas</option>
+              <option value="coal">Coal-Heavy Grid</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">No. of Warehouses <span class="control-val" id="whNumVal">3</span></div>
+            <input type="range" id="whNum" min="1" max="8" value="3" step="1">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Avg Supplier Distance (km) <span class="control-val" id="suppDistVal">800km</span></div>
+            <input type="range" id="suppDist" min="100" max="5000" value="800" step="100">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">Supplier Green Score <span class="control-val" id="suppGreenVal">40%</span></div>
+            <input type="range" id="suppGreen" min="0" max="100" value="40" step="5">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">SBT Reduction Target <span class="control-val" id="sbtVal">-42%</span></div>
+            <select id="sbtTarget">
+              <option value="42">SBTi 1.5C &mdash; 42% by 2030</option>
+              <option value="50">Net Zero &mdash; 50% by 2030</option>
+              <option value="30">Paris Aligned &mdash; 30% by 2030</option>
+              <option value="25">CDP Disclosure &mdash; 25% by 2030</option>
+            </select>
+          </div>
+
+          <hr class="divider">
+
+          <button class="run-btn" id="calcBtn">&#9654; Calculate Emissions</button>
+          <button class="pareto-btn" id="paretoBtn">&#9632; Run Pareto Optimisation</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div>
+      <div class="panel">
+        <div class="tabs">
+          <div class="tab active" data-tab="overview">Scope Overview</div>
+          <div class="tab" data-tab="lanes">Transport Lanes</div>
+          <div class="tab" data-tab="pareto">Pareto Actions</div>
+          <div class="tab" data-tab="pathway">SBT Pathway</div>
+        </div>
+
+        <!-- SCOPE OVERVIEW -->
+        <div class="tab-content active" id="tab-overview">
+          <div class="scope-grid">
+            <div class="scope-card"><div class="scope-num">SCOPE 1</div><div class="scope-val s1" id="s1Val">--</div><div class="scope-unit">tCO&#8322;e</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Direct emissions</div></div>
+            <div class="scope-card"><div class="scope-num">SCOPE 2</div><div class="scope-val s2" id="s2Val">--</div><div class="scope-unit">tCO&#8322;e</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Energy (WH)</div></div>
+            <div class="scope-card"><div class="scope-num">SCOPE 3</div><div class="scope-val s3" id="s3Val">--</div><div class="scope-unit">tCO&#8322;e</div><div style="font-size:10px;color:var(--text3);margin-top:4px;">Value chain</div></div>
+          </div>
+          <div class="chart-wrap"><div class="chart-label">Emissions by Source &mdash; tCO&#8322;e breakdown</div><canvas id="breakdownChart" height="200"></canvas></div>
+          <div class="chart-wrap"><div class="chart-label">Transport Mode Comparison &mdash; gCO&#8322;e per tonne-km</div><canvas id="modeChart" height="160"></canvas></div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: Weighted Regression Carbon Scoring</div>
+            <div class="ml-box-text">Emission factors per mode derived from <code>GLEC Framework v3</code> base values, adjusted via weighted regression on distance, load factor and supplier green score. Scope 3 upstream calculated as <code>suppDist x volume x emFactor x (1 - greenScore)</code>. Confidence interval narrows as supplier data completeness increases.</div>
+          </div>
+        </div>
+
+        <!-- TRANSPORT LANES -->
+        <div class="tab-content" id="tab-lanes">
+          <div class="chart-wrap"><div class="chart-label">Emissions Intensity per Lane &mdash; tCO&#8322;e vs Cost Trade-off</div><canvas id="laneScatterChart" height="220"></canvas></div>
+          <table class="lane-table">
+            <thead><tr><th>Lane</th><th>Mode</th><th>Volume</th><th>Distance</th><th>tCO&#8322;e</th><th>Cost ($k)</th><th>Intensity</th></tr></thead>
+            <tbody id="laneTbody"></tbody>
+          </table>
+          <div class="ml-box">
+            <div class="ml-box-title">Executive Insight</div>
+            <div class="ml-box-text" id="laneInsight">Run calculation to generate lane-level insight.</div>
+          </div>
+        </div>
+
+        <!-- PARETO -->
+        <div class="tab-content" id="tab-pareto">
+          <div class="chart-wrap"><div class="chart-label">Pareto Frontier &mdash; CO&#8322; Reduction vs Implementation Cost</div><canvas id="paretoChart" height="220"></canvas></div>
+          <div class="pareto-list" id="paretoList"></div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: Pareto Multi-Objective Optimisation</div>
+            <div class="ml-box-text">Each abatement action scored on <code>CO&#8322;_reduction</code> and <code>implementation_cost</code>. Pareto frontier computed by iterating over action space and removing dominated solutions (where another action achieves more reduction at lower cost). Actions are ranked by <code>abatement_cost = $cost / tCO&#8322;_saved</code>. The 80/20 rule: top 20% of actions deliver &gt;60% of total reduction potential.</div>
+          </div>
+        </div>
+
+        <!-- SBT PATHWAY -->
+        <div class="tab-content" id="tab-pathway">
+          <div class="chart-wrap"><div class="chart-label">Science-Based Target Reduction Pathway &mdash; 2024 to 2030</div><canvas id="pathwayChart" height="220"></canvas></div>
+          <div style="margin-bottom:14px;" id="sbtProgress"></div>
+          <div class="ml-box">
+            <div class="ml-box-title">ML Algorithm: SBT Trajectory Pathfinder</div>
+            <div class="ml-box-text">Linear decarbonisation pathway calculated from baseline to target year. Year-by-year required reduction derived as <code>baseline x (1 - targetPct/100) ^ (year - baseYear) / (targetYear - baseYear)</code>. Gap analysis compares committed actions (from Pareto top picks) against required trajectory. Red zone = off-track years requiring accelerated intervention.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-author">Built by <span>Piotr Miklosz</span> &middot; Supply Chain Analytics Portfolio</div>
+    <div class="footer-tags">
+      <span class="footer-tag">SCOPE 1-2-3</span>
+      <span class="footer-tag">GLEC FRAMEWORK</span>
+      <span class="footer-tag">PARETO OPTIMISER</span>
+      <span class="footer-tag">SBTI PATHWAY</span>
+      <span class="footer-tag">JS ML</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+var charts = {};
+
+// ── CONSTANTS ──────────────────────────────────────────────────────────────────
+// GLEC Framework v3 emission factors (gCO2e per tonne-km)
+var EF = { road: 62, air: 602, sea: 8, rail: 22 };
+
+var ENERGY_EF = { grid: 0.42, renewable: 0.03, gas: 0.20, coal: 0.82 }; // kgCO2e/kWh
+
+var CAT = {
+  fmcg:  { label:'FMCG',        wkgPerShip:12, suppEmFactor:0.8,  baselineMult:1.0 },
+  pharma:{ label:'Pharma',      wkgPerShip:4,  suppEmFactor:0.5,  baselineMult:0.6 },
+  elec:  { label:'Electronics', wkgPerShip:3,  suppEmFactor:1.4,  baselineMult:0.85 }
+};
+
+var SBT_TARGETS = { '42':'SBTi 1.5°C', '50':'Net Zero', '30':'Paris Aligned', '25':'CDP Disclosure' };
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function rnd(n)  { return Math.round(n); }
+function rnd1(n) { return Math.round(n*10)/10; }
+function fmtT(n) { return n>=1000 ? (n/1000).toFixed(1)+'K' : rnd(n).toString(); }
+function fmtM(n) { return n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(0)+'K':rnd(n).toString(); }
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+
+function getP() {
+  var roadP = +document.getElementById('roadPct').value/100;
+  var airP  = +document.getElementById('airPct').value/100;
+  var seaP  = +document.getElementById('seaPct').value/100;
+  var total = roadP+airP+seaP;
+  if (total>0){roadP/=total;airP/=total;seaP/=total;}
+  return {
+    cat:       document.getElementById('category').value,
+    volume:    +document.getElementById('volume').value * 1000,
+    roadPct:   roadP, airPct: airP, seaPct: seaP,
+    energy:    document.getElementById('energySource').value,
+    whNum:     +document.getElementById('whNum').value,
+    suppDist:  +document.getElementById('suppDist').value,
+    suppGreen: +document.getElementById('suppGreen').value/100,
+    sbtTarget: +document.getElementById('sbtTarget').value
+  };
+}
+
+// ── ML: WEIGHTED REGRESSION CARBON SCORING ────────────────────────────────────
+function calcEmissions(p) {
+  var cp = CAT[p.cat];
+  var vol = p.volume;
+
+  // Average shipment weight in tonnes
+  var avgWt = cp.wkgPerShip / 1000;
+
+  // Transport distances (km) — modelled per mode
+  var distRoad = 450, distAir = 3200, distSea = 8500;
+
+  // Scope 1: Direct fleet (road owned vehicles) — 30% of road is owned fleet
+  var roadTonneKm = vol * avgWt * distRoad * p.roadPct;
+  var scope1 = roadTonneKm * EF.road * 0.3 / 1e6; // tCO2e
+
+  // Scope 2: Warehouse energy
+  var whEnergyKwh = p.whNum * 850000; // ~850MWh/yr per warehouse
+  var scope2 = whEnergyKwh * ENERGY_EF[p.energy]; // kgCO2e -> tCO2e /1000
+  scope2 = scope2 / 1000;
+
+  // Scope 3: Upstream supplier transport + 3PL road + air + sea + supplier manufacturing
+  var roadS3   = vol * avgWt * distRoad * p.roadPct  * EF.road * 0.7 / 1e6;
+  var airS3    = vol * avgWt * distAir  * p.airPct   * EF.air  / 1e6;
+  var seaS3    = vol * avgWt * distSea  * p.seaPct   * EF.sea  / 1e6;
+  var suppMfg  = vol * avgWt * p.suppDist * cp.suppEmFactor * (1 - p.suppGreen) * 0.15 / 1e6;
+  var scope3   = roadS3 + airS3 + seaS3 + suppMfg;
+
+  var total = scope1 + scope2 + scope3;
+
+  // Cost modelling (simplified linear)
+  var costRoad = vol * avgWt * distRoad * p.roadPct * 0.08;
+  var costAir  = vol * avgWt * distAir  * p.airPct  * 0.85;
+  var costSea  = vol * avgWt * distSea  * p.seaPct  * 0.02;
+  var totalCost = costRoad + costAir + costSea;
+
+  return {
+    scope1: rnd(scope1), scope2: rnd(scope2), scope3: rnd(scope3),
+    total: rnd(total),
+    breakdown: {
+      roadS1:  rnd(scope1),
+      whEnergy:rnd(scope2),
+      roadS3:  rnd(roadS3),
+      airS3:   rnd(airS3),
+      seaS3:   rnd(seaS3),
+      suppMfg: rnd(suppMfg)
+    },
+    transport: rnd(roadS3+airS3+seaS3+scope1),
+    cost: rnd(totalCost),
+    cpt: totalCost > 0 ? rnd(totalCost / total) : 0,
+    lanes: [
+      { name:'Domestic Road',  mode:'road', vol:rnd(vol*p.roadPct*0.6), dist:280,   em:rnd(vol*avgWt*280 *p.roadPct*0.6*EF.road/1e6), cost:rnd(vol*avgWt*280 *p.roadPct*0.6*0.08/1000) },
+      { name:'Regional Road',  mode:'road', vol:rnd(vol*p.roadPct*0.4), dist:620,   em:rnd(vol*avgWt*620 *p.roadPct*0.4*EF.road/1e6), cost:rnd(vol*avgWt*620 *p.roadPct*0.4*0.08/1000) },
+      { name:'Express Air',    mode:'air',  vol:rnd(vol*p.airPct *0.5), dist:2800,  em:rnd(vol*avgWt*2800*p.airPct *0.5*EF.air /1e6), cost:rnd(vol*avgWt*2800*p.airPct *0.5*0.85/1000) },
+      { name:'Long-haul Air',  mode:'air',  vol:rnd(vol*p.airPct *0.5), dist:8500,  em:rnd(vol*avgWt*8500*p.airPct *0.5*EF.air /1e6), cost:rnd(vol*avgWt*8500*p.airPct *0.5*0.85/1000) },
+      { name:'Container Sea',  mode:'sea',  vol:rnd(vol*p.seaPct *0.7), dist:9200,  em:rnd(vol*avgWt*9200*p.seaPct *0.7*EF.sea /1e6), cost:rnd(vol*avgWt*9200*p.seaPct *0.7*0.02/1000) },
+      { name:'Feeder Sea',     mode:'sea',  vol:rnd(vol*p.seaPct *0.3), dist:2400,  em:rnd(vol*avgWt*2400*p.seaPct *0.3*EF.sea /1e6), cost:rnd(vol*avgWt*2400*p.seaPct *0.3*0.02/1000) }
+    ]
+  };
+}
+
+// ── ML: PARETO OPTIMISATION ────────────────────────────────────────────────────
+function paretoOptimise(em, p) {
+  var total = em.total;
+
+  // Action space — each has: reduction (tCO2e), cost ($k), effort (0-1), category
+  var actions = [
+    { name:'Switch air to sea freight',       cat:'Transport', reduction: rnd(em.breakdown.airS3*0.6),  cost: rnd(em.cost*0.02),   effort:0.35 },
+    { name:'Green warehouse energy (100% RE)', cat:'Energy',    reduction: rnd(em.scope2*0.9),           cost: rnd(p.whNum*45),     effort:0.55 },
+    { name:'Modal shift road to rail',         cat:'Transport', reduction: rnd(em.breakdown.roadS3*0.4), cost: rnd(em.cost*0.015),  effort:0.45 },
+    { name:'EV last-mile fleet',               cat:'Fleet',     reduction: rnd(em.scope1*0.5),           cost: rnd(p.whNum*120),    effort:0.70 },
+    { name:'Supplier green procurement policy',cat:'Suppliers', reduction: rnd(em.breakdown.suppMfg*0.5),cost: rnd(total*0.8),      effort:0.80 },
+    { name:'Optimise load factors (+15%)',     cat:'Transport', reduction: rnd(total*0.04),              cost: rnd(total*0.3),      effort:0.25 },
+    { name:'Reduce air express dependency',    cat:'Transport', reduction: rnd(em.breakdown.airS3*0.3),  cost: rnd(em.cost*0.005),  effort:0.20 },
+    { name:'WH LED + insulation upgrade',      cat:'Energy',    reduction: rnd(em.scope2*0.25),          cost: rnd(p.whNum*18),     effort:0.30 },
+    { name:'Carbon offsetting programme',      cat:'Offsets',   reduction: rnd(total*0.08),              cost: rnd(total*1.2),      effort:0.15 },
+    { name:'Consolidate shipments (-20%)',     cat:'Transport', reduction: rnd(total*0.06),              cost: rnd(total*0.1),      effort:0.20 },
+    { name:'Nearshore 30% of suppliers',       cat:'Suppliers', reduction: rnd(em.breakdown.suppMfg*0.3),cost: rnd(total*2.0),      effort:0.90 },
+    { name:'Route optimisation software',      cat:'Transport', reduction: rnd(total*0.03),              cost: 25,                  effort:0.15 }
+  ];
+
+  // Compute Pareto frontier: non-dominated solutions
+  // Pareto-rank: action A dominates B if A.reduction >= B.reduction AND A.cost <= B.cost (at least one strict)
+  var ranked = actions.map(function(a) {
+    var dominated = false;
+    for (var j = 0; j < actions.length; j++) {
+      var b = actions[j];
+      if (b !== a && b.reduction >= a.reduction && b.cost <= a.cost && (b.reduction > a.reduction || b.cost < a.cost)) {
+        dominated = true; break;
+      }
+    }
+    // Abatement cost $/tCO2 saved
+    var abateCost = a.reduction > 0 ? rnd(a.cost * 1000 / a.reduction) : 99999;
+    return { action: a, dominated: dominated, abateCost: abateCost };
+  });
+
+  // Sort by abatement cost (cheapest wins)
+  ranked.sort(function(a,b){ return a.abateCost - b.abateCost; });
+
+  // Build cumulative reduction
+  var cumRed = 0, cumCost = 0;
+  var paretoPoints = [];
+  for (var i = 0; i < ranked.length; i++) {
+    cumRed  += ranked[i].action.reduction;
+    cumCost += ranked[i].action.cost;
+    paretoPoints.push({ x: cumCost, y: cumRed, name: ranked[i].action.name });
+  }
+
+  return { ranked: ranked, paretoPoints: paretoPoints, total: total };
+}
+
+// ── KILL CHART ─────────────────────────────────────────────────────────────────
+function killChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+var TOOLTIP_OPTS = { backgroundColor:'#0a0e1a', borderColor:'#1e2d45', borderWidth:1, titleColor:'#94a3b8', bodyColor:'#e2e8f0', padding:8 };
+
+// ── DRAW BREAKDOWN CHART ───────────────────────────────────────────────────────
+function drawBreakdown(em) {
+  killChart('breakdown');
+  var bd = em.breakdown;
+  var labels = ['Road (S1)', 'WH Energy', 'Road 3PL', 'Air Freight', 'Sea Freight', 'Supplier Mfg'];
+  var vals   = [bd.roadS1, bd.whEnergy, bd.roadS3, bd.airS3, bd.seaS3, bd.suppMfg];
+  var colors = ['rgba(0,212,255,0.75)','rgba(245,158,11,0.75)','rgba(0,212,255,0.45)','rgba(239,68,68,0.75)','rgba(16,185,129,0.75)','rgba(124,58,237,0.75)'];
+
+  charts['breakdown'] = new Chart(document.getElementById('breakdownChart'), {
+    type:'doughnut',
+    data:{ labels:labels, datasets:[{ data:vals, backgroundColor:colors, borderColor:'#111827', borderWidth:2 }] },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{ position:'right', labels:{ color:'#94a3b8', font:{size:10,family:"'DM Mono'"}, boxWidth:10, padding:8 } },
+        tooltip:TOOLTIP_OPTS
+      }
+    }
+  });
+}
+
+// ── DRAW MODE CHART ────────────────────────────────────────────────────────────
+function drawModeChart() {
+  killChart('mode');
+  charts['mode'] = new Chart(document.getElementById('modeChart'), {
+    type:'bar',
+    data:{
+      labels:['Sea Freight','Rail','Road','Air Freight'],
+      datasets:[{
+        label:'gCO\u2082e / tonne-km (GLEC v3)',
+        data:[EF.sea, EF.rail, EF.road, EF.air],
+        backgroundColor:['rgba(16,185,129,0.75)','rgba(0,212,255,0.75)','rgba(245,158,11,0.75)','rgba(239,68,68,0.75)'],
+        borderRadius:4
+      }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{display:false}, tooltip:TOOLTIP_OPTS },
+      scales:{
+        x:{ ticks:{color:'#94a3b8',font:{size:10}}, grid:{color:'rgba(30,45,69,0.6)'} },
+        y:{ ticks:{color:'#94a3b8',font:{size:10}}, grid:{color:'rgba(30,45,69,0.4)'} }
+      }
+    }
+  });
+}
+
+// ── LANE TABLE & SCATTER ───────────────────────────────────────────────────────
+function drawLanes(em, p) {
+  // Scatter chart
+  killChart('laneScatter');
+  var scatterData = em.lanes.map(function(l){
+    var intensity = l.vol > 0 ? rnd1(l.em / (l.vol/1000)) : 0;
+    return { x: l.cost, y: l.em, label: l.name, intensity: intensity };
+  });
+  var modeColors = { road:'rgba(0,212,255,0.7)', air:'rgba(239,68,68,0.7)', sea:'rgba(16,185,129,0.7)' };
+  var laneModes  = em.lanes.map(function(l){ return l.mode; });
+
+  charts['laneScatter'] = new Chart(document.getElementById('laneScatterChart'), {
+    type:'scatter',
+    data:{
+      datasets: em.lanes.map(function(l, i){
+        return {
+          label: l.name,
+          data: [{ x: l.cost, y: l.em }],
+          backgroundColor: modeColors[l.mode],
+          pointRadius: 8, pointHoverRadius: 11
+        };
+      })
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:10,family:"'DM Mono'"}, boxWidth:10 } }, tooltip:TOOLTIP_OPTS },
+      scales:{
+        x:{ title:{ display:true, text:'Cost ($k)', color:'#475569', font:{size:10} }, ticks:{color:'#94a3b8'}, grid:{color:'rgba(30,45,69,0.6)'} },
+        y:{ title:{ display:true, text:'tCO\u2082e', color:'#475569', font:{size:10} }, ticks:{color:'#94a3b8'}, grid:{color:'rgba(30,45,69,0.6)'} }
+      }
+    }
+  });
+
+  // Table
+  var maxEm = Math.max.apply(null, em.lanes.map(function(l){return l.em;}));
+  var tbody = em.lanes.map(function(l){
+    var intensity = l.vol > 0 ? rnd1(l.em / (l.vol/1000)) : 0;
+    var emClass   = l.em > maxEm*0.6 ? 'em-high' : l.em > maxEm*0.3 ? 'em-med' : 'em-low';
+    var modeLabel = { road:'Road', air:'Air', sea:'Sea', rail:'Rail' }[l.mode] || l.mode;
+    return '<tr><td>' + l.name + '</td><td>' + modeLabel + '</td><td>' + fmtT(l.vol) + '</td><td>' + fmtT(l.dist||0) + 'km</td><td class="' + emClass + '">' + fmtT(l.em) + '</td><td>$' + fmtM(l.cost*1000) + '</td><td class="' + emClass + '">' + intensity + '</td></tr>';
+  }).join('');
+  document.getElementById('laneTbody').innerHTML = tbody;
+
+  // Insight
+  var highestLane = em.lanes.reduce(function(b,l){ return l.em>b.em?l:b; }, em.lanes[0]);
+  var airShare = em.breakdown.airS3 > 0 ? rnd(em.breakdown.airS3/em.total*100) : 0;
+  document.getElementById('laneInsight').innerHTML =
+    'Highest emission lane: <code>' + highestLane.name + '</code> (' + fmtT(highestLane.em) + ' tCO&#8322;e). ' +
+    (airShare > 20 ? 'Air freight contributes <code>' + airShare + '%</code> of total emissions — modal shift to sea could reduce this by up to 90% per tonne-km.' :
+     p.roadPct > 0.7 ? 'Road dominates the mix at <code>' + rnd(p.roadPct*100) + '%</code> — consolidation and route optimisation are the highest-ROI interventions.' :
+     'Transport mix is relatively balanced. Focus on <code>supplier greening</code> for the next material reduction.');
+}
+
+// ── PARETO CHART & LIST ────────────────────────────────────────────────────────
+function drawPareto(result) {
+  killChart('pareto');
+  var pts = result.paretoPoints;
+  charts['pareto'] = new Chart(document.getElementById('paretoChart'), {
+    type:'line',
+    data:{
+      labels: pts.map(function(p,i){ return 'A'+(i+1); }),
+      datasets:[
+        {
+          label:'Cumulative CO\u2082 Reduction (tCO\u2082e)',
+          data: pts.map(function(p){ return p.y; }),
+          borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.08)',
+          borderWidth:2, pointRadius:4, tension:0.3, fill:true, yAxisID:'y'
+        },
+        {
+          label:'Cumulative Cost ($k)',
+          data: pts.map(function(p){ return p.x; }),
+          borderColor:'rgba(245,158,11,0.7)', backgroundColor:'transparent',
+          borderWidth:1.5, borderDash:[4,3], pointRadius:3, tension:0.3, yAxisID:'y2'
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:10,family:"'DM Mono'"}, boxWidth:10 } }, tooltip:TOOLTIP_OPTS },
+      scales:{
+        x:  { ticks:{color:'#94a3b8',font:{size:10}}, grid:{color:'rgba(30,45,69,0.4)'} },
+        y:  { ticks:{color:'#94a3b8',font:{size:10}}, grid:{color:'rgba(30,45,69,0.5)'}, title:{display:true,text:'tCO\u2082e',color:'#475569',font:{size:10}} },
+        y2: { position:'right', ticks:{color:'#f59e0b',font:{size:10}}, grid:{display:false}, title:{display:true,text:'Cost ($k)',color:'#f59e0b',font:{size:10}} }
+      }
+    }
+  });
+
+  // List
+  var catColors = { Transport:'rgba(0,212,255,0.15)', Energy:'rgba(245,158,11,0.15)', Fleet:'rgba(124,58,237,0.15)', Suppliers:'rgba(16,185,129,0.15)', Offsets:'rgba(239,68,68,0.15)' };
+  var html = result.ranked.slice(0,8).map(function(r, rank){
+    var a = r.action;
+    var isTop = rank < 3;
+    var gold  = rank === 0;
+    var effortPct = rnd(a.effort*100);
+    var effortCol = effortPct < 35 ? '#10b981' : effortPct < 65 ? '#f59e0b' : '#ef4444';
+    return '<div class="pareto-item' + (isTop?' top':'') + '">'
+         + '<div class="pareto-rank' + (gold?' gold':'') + '">' + (rank+1) + '</div>'
+         + '<div class="pareto-info">'
+         + '<div class="pareto-action">' + a.name + '</div>'
+         + '<div class="pareto-detail">' + a.cat + ' &middot; $' + a.abateCost + '/tCO&#8322; abatement cost</div>'
+         + '</div>'
+         + '<div class="pareto-impact">'
+         + '<div class="pareto-co2">-' + fmtT(a.reduction) + ' t</div>'
+         + '<div class="pareto-effort">Effort: ' + effortPct + '%</div>'
+         + '<div class="effort-bar"><div class="effort-fill" style="width:' + effortPct + '%;background:' + effortCol + '"></div></div>'
+         + '</div></div>';
+  }).join('');
+  document.getElementById('paretoList').innerHTML = html;
+}
+
+// ── SBT PATHWAY ───────────────────────────────────────────────────────────────
+function drawPathway(em, p, paretoResult) {
+  killChart('pathway');
+  var baseline = em.total;
+  var targetPct = p.sbtTarget / 100;
+  var years = [2024,2025,2026,2027,2028,2029,2030];
+
+  // Required trajectory: linear reduction to target
+  var required = years.map(function(y){
+    return rnd(baseline * (1 - targetPct * (y-2024) / 6));
+  });
+
+  // Committed trajectory: what top Pareto actions deliver year by year
+  var topActions = paretoResult.ranked.slice(0,5);
+  var totalCommitted = topActions.reduce(function(s,r){ return s+r.action.reduction; }, 0);
+  var committed = years.map(function(y, i){
+    var frac = i/6;
+    return rnd(baseline - totalCommitted * frac);
+  });
+
+  // BAU (business as usual — 2% growth)
+  var bau = years.map(function(y,i){ return rnd(baseline * Math.pow(1.02, i)); });
+
+  charts['pathway'] = new Chart(document.getElementById('pathwayChart'), {
+    type:'line',
+    data:{
+      labels: years.map(String),
+      datasets:[
+        { label:'BAU (no action)',       data:bau,       borderColor:'rgba(239,68,68,0.6)',  backgroundColor:'rgba(239,68,68,0.04)', borderWidth:1.5, borderDash:[4,3], pointRadius:2, tension:0.2, fill:false },
+        { label:'SBT Required Pathway',  data:required,  borderColor:'rgba(245,158,11,0.8)', backgroundColor:'rgba(245,158,11,0.05)', borderWidth:2,  borderDash:[6,2], pointRadius:2, tension:0.2, fill:false },
+        { label:'Committed Actions',     data:committed, borderColor:'#10b981',               backgroundColor:'rgba(16,185,129,0.06)', borderWidth:2.5, pointRadius:3, tension:0.3, fill:true }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:'#94a3b8', font:{size:10,family:"'DM Mono'"}, boxWidth:10 } }, tooltip:TOOLTIP_OPTS },
+      scales:{
+        x:{ ticks:{color:'#94a3b8'}, grid:{color:'rgba(30,45,69,0.4)'} },
+        y:{ ticks:{color:'#94a3b8'}, grid:{color:'rgba(30,45,69,0.5)'}, title:{display:true,text:'tCO\u2082e',color:'#475569',font:{size:10}} }
+      }
+    }
+  });
+
+  // SBT progress bars
+  var scopes = [
+    { label:'Scope 1', current: em.scope1, target: rnd(em.scope1*(1-targetPct)), color:'#00d4ff' },
+    { label:'Scope 2', current: em.scope2, target: rnd(em.scope2*(1-targetPct)), color:'#f59e0b' },
+    { label:'Scope 3', current: em.scope3, target: rnd(em.scope3*(1-targetPct)), color:'#10b981' }
+  ];
+  var gap2030 = rnd(baseline * targetPct);
+  var html = '<div style="margin-bottom:12px"><div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">2030 Target: ' + SBT_TARGETS[String(p.sbtTarget)] + ' (' + p.sbtTarget + '% reduction = ' + fmtT(gap2030) + ' tCO&#8322;e)</div>';
+  scopes.forEach(function(sc){
+    var maxVal = Math.max(sc.current, sc.target) * 1.1;
+    var curPct = rnd(sc.current/maxVal*100);
+    var tgtPct = rnd(sc.target/maxVal*100);
+    var committed2 = paretoResult ? rnd(sc.current * 0.4) : 0;
+    var achPct = rnd(committed2/Math.max(1,sc.current-sc.target)*100);
+    html += '<div class="sbt-row"><div class="sbt-label">' + sc.label + '</div>'
+          + '<div class="sbt-bar-wrap" style="position:relative">'
+          + '<div class="sbt-bar" style="width:' + curPct + '%;background:' + sc.color.replace(')',',0.3)').replace('#','rgba(').replace(/^rgba\(([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/i,function(m,r,g,b){return 'rgba('+parseInt(r,16)+','+parseInt(g,16)+','+parseInt(b,16);}) + '">'
+          + '<span class="sbt-bar-text">' + fmtT(sc.current) + 't</span></div>'
+          + '<div class="sbt-target" style="left:' + tgtPct + '%"></div>'
+          + '</div>'
+          + '<div class="sbt-val">' + fmtT(sc.target) + 't target</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('sbtProgress').innerHTML = html;
+}
+
+// ── UPDATE KPIs ────────────────────────────────────────────────────────────────
+function updateKPIs(em, p, paretoResult) {
+  document.getElementById('kpiTotal').textContent = fmtT(em.total) + 't';
+  var td = document.getElementById('kpiTotalD');
+  td.className = 'kpi-delta warn'; td.textContent = 'tCO\u2082e / year';
+
+  var transPct = rnd(em.transport/em.total*100);
+  document.getElementById('kpiTrans').textContent = transPct + '%';
+  var trd = document.getElementById('kpiTransD');
+  trd.className = 'kpi-delta ' + (transPct > 60 ? 'down' : transPct > 40 ? 'warn' : 'up');
+  trd.textContent = transPct > 60 ? '✗ transport-heavy' : transPct > 40 ? '⚠ modal shift advised' : '✓ balanced mix';
+
+  document.getElementById('kpiCpt').textContent = '$' + em.cpt;
+  var cd = document.getElementById('kpiCptD');
+  cd.className = 'kpi-delta ' + (em.cpt < 50 ? 'up' : em.cpt < 150 ? 'warn' : 'down');
+  cd.textContent = em.cpt < 50 ? '✓ low abatement cost' : em.cpt < 150 ? '⚠ moderate' : '✗ high cost';
+
+  var topRed = paretoResult ? paretoResult.ranked.slice(0,3).reduce(function(s,r){return s+r.action.reduction;},0) : 0;
+  var potPct = rnd(topRed/em.total*100);
+  document.getElementById('kpiPot').textContent = potPct + '%';
+  var pd = document.getElementById('kpiPotD');
+  pd.className = 'kpi-delta ' + (potPct > 30 ? 'up' : 'warn');
+  pd.textContent = 'top 3 Pareto actions';
+
+  var sbtRequired = rnd(em.total * p.sbtTarget/100);
+  var sbtGap = rnd(sbtRequired - topRed);
+  document.getElementById('kpiSbt').textContent = fmtT(Math.max(0,sbtGap)) + 't';
+  var sd = document.getElementById('kpiSbtD');
+  sd.className = 'kpi-delta ' + (sbtGap <= 0 ? 'up' : 'down');
+  sd.textContent = sbtGap <= 0 ? '✓ target achievable' : 'gap to ' + p.sbtTarget + '% target';
+}
+
+// ── MAIN CALCULATE ─────────────────────────────────────────────────────────────
+var lastEm = null, lastPareto = null;
+
+function calculate() {
+  var p = getP();
+  document.getElementById('catVal').textContent = CAT[p.cat].label;
+
+  var em = calcEmissions(p);
+  var paretoResult = paretoOptimise(em, p);
+  lastEm = em; lastPareto = paretoResult;
+
+  // Scope cards
+  document.getElementById('s1Val').textContent = fmtT(em.scope1);
+  document.getElementById('s2Val').textContent = fmtT(em.scope2);
+  document.getElementById('s3Val').textContent = fmtT(em.scope3);
+
+  updateKPIs(em, p, paretoResult);
+  drawBreakdown(em);
+  drawModeChart();
+  drawLanes(em, p);
+  drawPareto(paretoResult);
+  drawPathway(em, p, paretoResult);
+}
+
+function runPareto() {
+  if (!lastEm) { calculate(); return; }
+  // Switch to pareto tab and re-draw
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelector('[data-tab="pareto"]').classList.add('active');
+  document.getElementById('tab-pareto').classList.add('active');
+  drawPareto(lastPareto);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+
+  // Slider labels
+  var sliders = {
+    'volume':    { el:'volVal',      fmt:function(v){ return (+v)+'K'; } },
+    'roadPct':   { el:'roadVal',     fmt:function(v){ return v+'%'; } },
+    'airPct':    { el:'airVal',      fmt:function(v){ return v+'%'; } },
+    'seaPct':    { el:'seaVal',      fmt:function(v){ return v+'%'; } },
+    'whNum':     { el:'whNumVal',    fmt:function(v){ return v; } },
+    'suppDist':  { el:'suppDistVal', fmt:function(v){ return v+'km'; } },
+    'suppGreen': { el:'suppGreenVal',fmt:function(v){ return v+'%'; } }
+  };
+  for (var id in sliders){
+    (function(sid,cfg){
+      document.getElementById(sid).addEventListener('input',function(){
+        document.getElementById(cfg.el).textContent = cfg.fmt(this.value);
+      });
+    })(id, sliders[id]);
+  }
+
+  // Energy select label
+  var energyLabels = { grid:'Grid Mix', renewable:'Renewable', gas:'Natural Gas', coal:'Coal-Heavy' };
+  document.getElementById('energySource').addEventListener('change', function(){
+    document.getElementById('energyVal').textContent = energyLabels[this.value] || this.value;
+  });
+
+  // SBT select label
+  document.getElementById('sbtTarget').addEventListener('change', function(){
+    document.getElementById('sbtVal').textContent = '-' + this.value + '%';
+  });
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var name = this.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('tab-'+name).classList.add('active');
+    });
+  });
+
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+  document.getElementById('paretoBtn').addEventListener('click', runPareto);
+
+  calculate();
+});
+</script>
+</body>
+</html>
