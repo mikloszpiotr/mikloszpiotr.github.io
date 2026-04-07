@@ -32,7 +32,6 @@
             overflow-x: hidden;
         }
 
-        /* NAV */
         nav {
             position: fixed;
             top: 0;
@@ -80,7 +79,6 @@
 
         .nav-links a:hover { color: var(--accent); }
 
-        /* HERO */
         .hero {
             min-height: 100vh;
             background: var(--ink);
@@ -267,12 +265,10 @@
             animation: pulse 2.2s infinite;
         }
 
-        /* MAIN */
         main { padding: 112px 0 80px; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
 
-        /* DOMAIN BLOCKS */
         .domain {
             border-top: 1px solid var(--rule);
             padding-top: 80px;
@@ -305,7 +301,6 @@
             line-height: 1.2;
         }
 
-        /* CARDS */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -383,7 +378,6 @@
 
         .card-link:hover { color: var(--gold); gap: 14px; }
 
-        /* FOOTER */
         footer {
             background: var(--ink);
             padding: 72px 48px 52px;
@@ -452,7 +446,6 @@
             color: rgba(255,255,255,0.28);
         }
 
-        /* ANIMATIONS */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(22px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -468,7 +461,6 @@
             50%       { opacity: 0.75; }
         }
 
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .nav-inner { padding: 0 24px; }
             .nav-links { display: none; }
@@ -483,35 +475,29 @@
 </head>
 <body>
 
-    <!-- NAV -->
     <nav>
         <div class="nav-inner">
             <a href="#home" class="nav-logo">Piotr Miklosz</a>
             <div class="nav-links">
+                <a href="#case-studies">Case Studies</a>
                 <a href="https://github.com/Mikloszpiotr" target="_blank">GitHub</a>
             </div>
         </div>
     </nav>
 
-    <!-- HERO -->
     <section class="hero" id="home">
         <div class="hero-texture"></div>
         <div class="hero-grid"></div>
         <div class="hero-inner">
-
             <div class="hero-eyebrow">
                 <span class="eyebrow-line"></span>
                 <span class="eyebrow-text">Supply Chain Analytics &amp; Solutions Leader</span>
             </div>
-
             <h1>Turning Complex<br><em>Data Problems</em><br>into Business Decisions</h1>
-
             <div class="hero-rule"></div>
-
             <p class="hero-desc">
                 8+ years leading analytics strategy across automotive, electronics, and FMCG — translating advanced ML, AI, and data engineering into measurable operational performance and executive-level insight.
             </p>
-
             <div class="hero-pillars">
                 <span class="pillar">Demand Planning</span>
                 <span class="pillar">AI &amp; ML Strategy</span>
@@ -519,11 +505,10 @@
                 <span class="pillar">Cross-Functional Leadership</span>
                 <span class="pillar">Operational Excellence</span>
             </div>
-
             <div class="hero-cta">
+                <a href="#case-studies" class="btn-gold">View Case Studies</a>
                 <a href="https://github.com/Mikloszpiotr" target="_blank" class="btn-ghost">View GitHub</a>
             </div>
-
         </div>
         <div class="hero-scroll">
             <div class="scroll-bar"></div>
@@ -531,9 +516,37 @@
         </div>
     </section>
 
-    <!-- MAIN -->
     <main>
         <div class="container">
+
+            <!-- CASE STUDIES — new section -->
+            <div class="domain" id="case-studies">
+                <div class="domain-label">
+                    <span class="domain-label-line"></span>
+                    <span class="domain-label-text">Applied Analytics</span>
+                </div>
+                <h2 class="domain-title">Interactive Case Studies</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <span class="card-tag">S&amp;OP / IBP</span>
+                        <h3>S&amp;OP Consensus Simulator</h3>
+                        <p>Interactive Sales &amp; Operations Planning simulator with Holt-Winters demand forecasting, multi-function consensus gap detection, and ML-weighted scenario scoring across FMCG, Pharma and Electronics.</p>
+                        <a href="sop-simulator.html" target="_blank" class="card-link">Launch App &rarr;</a>
+                    </div>
+                    <div class="card">
+                        <span class="card-tag">Network Design</span>
+                        <h3>Supply Chain Network Design Tool</h3>
+                        <p>Network optimiser using K-Means++ warehouse placement, greedy transport cost assignment, and live disruption simulation &mdash; showing how single-node failures impact cost and coverage in real time.</p>
+                        <a href="network-design.html" target="_blank" class="card-link">Launch App &rarr;</a>
+                    </div>
+                    <div class="card">
+                        <span class="card-tag">Sustainability</span>
+                        <h3>Carbon &amp; Sustainability Calculator</h3>
+                        <p>Scope 1-2-3 emissions modelling across transport lanes, warehousing and suppliers &mdash; with Pareto optimisation identifying the 20% of changes that deliver 80% of CO&#8322; reduction, and SBT pathway tracking.</p>
+                        <a href="carbon-calculator.html" target="_blank" class="card-link">Launch App &rarr;</a>
+                    </div>
+                </div>
+            </div>
 
             <!-- ML & AI -->
             <div class="domain">
@@ -547,37 +560,37 @@
                         <span class="card-tag">Portfolio</span>
                         <h3>ML Projects Portfolio</h3>
                         <p>A curated collection of machine learning projects spanning predictive modeling, classification, and advanced data analysis — built for real supply chain contexts.</p>
-                        <a href="https://Mikloszpiotr.github.io/ml-projects-portfolio.github.io" target="_blank" class="card-link">Explore →</a>
+                        <a href="https://Mikloszpiotr.github.io/ml-projects-portfolio.github.io" target="_blank" class="card-link">Explore &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Analysis</span>
                         <h3>Supply Chain ML</h3>
                         <p>Python-based machine learning applied to supply chain optimization, demand forecasting, and operational insight generation at scale.</p>
-                        <a href="https://github.com/Mikloszpiotr/Supply-Chain-Analysis-Python" target="_blank" class="card-link">View Code →</a>
+                        <a href="https://github.com/Mikloszpiotr/Supply-Chain-Analysis-Python" target="_blank" class="card-link">View Code &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Application</span>
                         <h3>Streamlit ML Apps</h3>
                         <p>Interactive, production-ready ML applications enabling real-time data exploration, live predictions, and stakeholder-facing model demonstrations.</p>
-                        <a href="https://share.streamlit.io/user/Mikloszpiotr" target="_blank" class="card-link">Launch →</a>
+                        <a href="https://share.streamlit.io/user/Mikloszpiotr" target="_blank" class="card-link">Launch &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Deep Learning</span>
                         <h3>Lead Time Prediction — Neural Network</h3>
                         <p>Neural network model predicting supplier lead times with high accuracy, directly reducing supply chain uncertainty and safety stock requirements.</p>
-                        <a href="https://github.com/Mikloszpiotr/supplier_lead_time_prediction_nn" target="_blank" class="card-link">View Project →</a>
+                        <a href="https://github.com/Mikloszpiotr/supplier_lead_time_prediction_nn" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Competition</span>
                         <h3>Kaggle Competitions</h3>
                         <p>Active competition track record in predictive modeling challenges, benchmarking analytical approaches against global data science practitioners.</p>
-                        <a href="https://www.kaggle.com/piotrek40941/competitions" target="_blank" class="card-link">View Profile →</a>
+                        <a href="https://www.kaggle.com/piotrek40941/competitions" target="_blank" class="card-link">View Profile &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">AI Agent</span>
                         <h3>Supply Chain AI Assistant</h3>
                         <p>GPT-powered intelligent assistant specialized in supply chain analysis, delivering optimization recommendations and decision support on demand.</p>
-                        <a href="https://chatgpt.com/g/g-67e032a1ae44819195dd8d5902f8671f-supply-chain-analyst-automator" target="_blank" class="card-link">Try Now →</a>
+                        <a href="https://chatgpt.com/g/g-67e032a1ae44819195dd8d5902f8671f-supply-chain-analyst-automator" target="_blank" class="card-link">Try Now &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -594,22 +607,23 @@
                         <span class="card-tag">Portfolio</span>
                         <h3>SQL Projects Portfolio</h3>
                         <p>Comprehensive SQL work spanning database design, complex query architecture, performance optimization, and enterprise-scale data pipelines.</p>
-                        <a href="https://Mikloszpiotr.github.io/sql-projects-portfolio.github.io" target="_blank" class="card-link">Explore →</a>
+                        <a href="https://Mikloszpiotr.github.io/sql-projects-portfolio.github.io" target="_blank" class="card-link">Explore &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Database</span>
                         <h3>Supply Chain SQL</h3>
                         <p>SQL-based data engineering for supply chain management — covering inventory optimization, warehouse analytics, and operational reporting infrastructure.</p>
-                        <a href="https://github.com/Mikloszpiotr/supply-chain-sql-projects" target="_blank" class="card-link">View Repository →</a>
+                        <a href="https://github.com/Mikloszpiotr/supply-chain-sql-projects" target="_blank" class="card-link">View Repository &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Portfolio</span>
                         <h3>Enterprise Supply Chain Analytics Operating Model</h3>
                         <p>SQL-Based Decision Platform for Inventory, Service, Supplier, and Logistics Performance.</p>
-                        <a href="https://github.com/mikloszpiotr/enterprise_supply_chain_analytics_operating_model/tree/main" target="_blank" class="card-link">View Repository →</a>
+                        <a href="https://github.com/mikloszpiotr/enterprise_supply_chain_analytics_operating_model/tree/main" target="_blank" class="card-link">View Repository &rarr;</a>
                     </div>
                 </div>
             </div>
+
             <!-- BI -->
             <div class="domain">
                 <div class="domain-label">
@@ -622,19 +636,19 @@
                         <span class="card-tag">Tableau</span>
                         <h3>Executive Dashboards</h3>
                         <p>Production-grade Tableau dashboards built for business intelligence, KPI tracking, and executive reporting — designed for clarity and decision velocity.</p>
-                        <a href="https://public.tableau.com/app/profile/piotr.mik.osz/vizzes" target="_blank" class="card-link">View Dashboards →</a>
+                        <a href="https://public.tableau.com/app/profile/piotr.mik.osz/vizzes" target="_blank" class="card-link">View Dashboards &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Power BI</span>
                         <h3>Transportation Cost Analysis</h3>
                         <p>Power BI dashboard delivering comprehensive transportation cost analytics and logistics optimization insights to drive cost reduction decisions.</p>
-                        <a href="https://github.com/Mikloszpiotr/transportation-cost-analysis/tree/main" target="_blank" class="card-link">View Project →</a>
+                        <a href="https://github.com/Mikloszpiotr/transportation-cost-analysis/tree/main" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Power BI</span>
                         <h3>Supply Chain KPI Framework</h3>
                         <p>A structured framework connecting FMCG supply chain business questions to measurable KPIs — and from KPIs to Power BI implementation logic.</p>
-                        <a href="https://github.com/mikloszpiotr/supply_chain_kpi_framework/tree/main" target="_blank" class="card-link">View Project →</a>
+                        <a href="https://github.com/mikloszpiotr/supply_chain_kpi_framework/tree/main" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -651,19 +665,19 @@
                         <span class="card-tag">Optimization</span>
                         <h3>Supply Chain Optimization Hub</h3>
                         <p>An integrated collection of optimization initiatives covering network design, inventory management, routing algorithms, and end-to-end operational efficiency improvements across complex supply chains.</p>
-                        <a href="https://mikloszpiotr.github.io/optimization.github.io/" target="_blank" class="card-link">Explore →</a>
+                        <a href="https://mikloszpiotr.github.io/optimization.github.io/" target="_blank" class="card-link">Explore &rarr;</a>
                     </div>
-                        <div class="card">
+                    <div class="card">
                         <span class="card-tag">Optimization</span>
                         <h3>End-to-End Lead Time Reduction</h3>
                         <p>This project defines, measures, and attacks lead time at each stage of the order-to-delivery cycle — turning a lagging performance metric into an actionable diagnostic framework.</p>
-                        <a href="https://github.com/mikloszpiotr/end_to_end_lead_time_reduction" target="_blank" class="card-link">Explore →</a>
+                        <a href="https://github.com/mikloszpiotr/end_to_end_lead_time_reduction" target="_blank" class="card-link">Explore &rarr;</a>
                     </div>
-                        <div class="card">
+                    <div class="card">
                         <span class="card-tag">Optimization</span>
                         <h3>Demand Planning Optimization</h3>
                         <p>The objective is to show how analytics translates into operational impact, cost control, and service level improvement.</p>
-                        <a href="https://github.com/mikloszpiotr/demand-planning-optimization/tree/main" target="_blank" class="card-link">Explore →</a>
+                        <a href="https://github.com/mikloszpiotr/demand-planning-optimization/tree/main" target="_blank" class="card-link">Explore &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -680,37 +694,37 @@
                         <span class="card-tag">Workflow</span>
                         <h3>AI Supply Chain Copilot</h3>
                         <p>n8n-based agentic workflow automating supply chain analysis, decision-making, and operational intelligence gathering — reducing manual effort at scale.</p>
-                        <a href="https://github.com/Mikloszpiotr/ai-agentic-supply-chain-copilot/tree/main" target="_blank" class="card-link">View Workflow →</a>
+                        <a href="https://github.com/Mikloszpiotr/ai-agentic-supply-chain-copilot/tree/main" target="_blank" class="card-link">View Workflow &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">AI Agent</span>
                         <h3>Demand Forecast Accuracy Agent</h3>
                         <p>OpenAI-powered agent for demand forecasting accuracy analysis, anomaly detection, and predictive accuracy improvements across complex SKU portfolios.</p>
-                        <a href="https://github.com/Mikloszpiotr/demand_forecast_accuracy_agent/tree/main" target="_blank" class="card-link">View Agent →</a>
+                        <a href="https://github.com/Mikloszpiotr/demand_forecast_accuracy_agent/tree/main" target="_blank" class="card-link">View Agent &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Multi-Agent</span>
                         <h3>Demand Forecast Multi-Agent AI</h3>
                         <p>LangGraph multi-agent system automating the full demand forecasting workflow — from data ingestion to executive-ready commentary — in under 5 minutes per SKU.</p>
-                        <a href="https://github.com/mikloszpiotr/demand-forecast-multi-agent?tab=readme-ov-file" target="_blank" class="card-link">View Project →</a>
+                        <a href="https://github.com/mikloszpiotr/demand-forecast-multi-agent?tab=readme-ov-file" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">ML Workflow</span>
                         <h3>Delivery Delay Prediction</h3>
                         <p>End-to-end ML classification project built in Orange Data Mining to predict delivery delays — translating operational risk into proactive supply chain decisions.</p>
-                        <a href="https://github.com/mikloszpiotr/orange-ml-delivery-delay-prediction/tree/main" target="_blank" class="card-link">View Project →</a>
+                        <a href="https://github.com/mikloszpiotr/orange-ml-delivery-delay-prediction/tree/main" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Certification</span>
                         <h3>Alteryx — Certified Specialist</h3>
                         <p>Certified expertise in data preparation, workflow automation, and analytics platform optimization, enabling enterprise-scale processing and repeatable analytical pipelines.</p>
-                        <a href="https://community.alteryx.com/t5/user/viewprofilepage/user-id/776142" target="_blank" class="card-link">View Certification →</a>
+                        <a href="https://community.alteryx.com/t5/user/viewprofilepage/user-id/776142" target="_blank" class="card-link">View Certification &rarr;</a>
                     </div>
                     <div class="card">
                         <span class="card-tag">Workflow</span>
-                        <h3>Stockout Prevention & Replenishment Automation</h3>
-                        <p>We built an automated AI-driven workflow that detects stockout risk, prioritizes critical SKUs, and recommends optimal replenishment actions to improve service level and reduce lost sales.</p>
-                        <a href="https://github.com/mikloszpiotr/stockout-prevention-workflow/tree/main" target="_blank" class="card-link">View Project →</a>
+                        <h3>Stockout Prevention &amp; Replenishment Automation</h3>
+                        <p>Automated AI-driven workflow that detects stockout risk, prioritizes critical SKUs, and recommends optimal replenishment actions to improve service level and reduce lost sales.</p>
+                        <a href="https://github.com/mikloszpiotr/stockout-prevention-workflow/tree/main" target="_blank" class="card-link">View Project &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -718,14 +732,13 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer>
         <div class="footer-inner">
             <div>
                 <div class="footer-name">Piotr Miklosz</div>
                 <div class="footer-role">Supply Chain Analytics &amp; Solutions Leader</div>
                 <p class="footer-skills">
-                    Machine Learning &nbsp;·&nbsp; Deep Learning &nbsp;·&nbsp; SQL &amp; Data Engineering &nbsp;·&nbsp; Business Intelligence &nbsp;·&nbsp; Supply Chain Analytics &nbsp;·&nbsp; AI Automation &nbsp;·&nbsp; Demand Planning &nbsp;·&nbsp; Operational Excellence
+                    Machine Learning &nbsp;&middot;&nbsp; Deep Learning &nbsp;&middot;&nbsp; SQL &amp; Data Engineering &nbsp;&middot;&nbsp; Business Intelligence &nbsp;&middot;&nbsp; Supply Chain Analytics &nbsp;&middot;&nbsp; AI Automation &nbsp;&middot;&nbsp; Demand Planning &nbsp;&middot;&nbsp; Operational Excellence
                 </p>
             </div>
             <div class="footer-nav">
